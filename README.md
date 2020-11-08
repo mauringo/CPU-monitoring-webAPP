@@ -13,10 +13,9 @@ Installable trough snapd:
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/mongo36-configurable)
 
-https://snapcraft.io/mongo36-configurable
 
 command:
-*- sudo snap install mongo36-configurable*
+*sudo snap install --edge cpu-monitoring-webapp
 
 
 ## Step 0 - System setup - if needed
