@@ -16,6 +16,8 @@ apps:
   flask-server: 
     command: sh $SNAP/bin/runserver.sh  
     plugs:
+      - network
+      - network-bind
       - gsettings
       - udisks2
       - hardware-observe
