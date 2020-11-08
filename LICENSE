@@ -2,6 +2,12 @@ MIT License
 
 This Apps is based on Python3, the Flask and psutil pip packages and 
 the bootstrap framework.
+
+The license below is applied only to the files included in this repo
+with the exeption of the files contained in
+/Flask/statics/libs/
+
+
  
 Copyright (c) 2020 mauringo
 
