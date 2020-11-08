@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=CPU Monitor
+Comment=Monitor your device usage
+Exec=cpu-monitoring-webapp.desktop-launch
+Icon=${SNAP}/meta/gui/icon.png
+Terminal=false
+Categories=Development;

@@ -1,0 +1,63 @@
+name: cpu-monitoring-webapp
+version: '0.1'
+base: core18
+summary: Simple WebAPP to monitor your system usage
+description: |
+     Intall the app and navigate to http://yourDeviceIp:12121 and monitor your device CPU/RAM
+     usage
+      
+confinement: strict
+grade: stable
+
+    
+apps:
+
+ 
+  flask-server: 
+    command: sh $SNAP/bin/runserver.sh  
+    plugs: [network, network-bind, mount-observe, network-observe, system-observe, bluetooth-control]
+    daemon: simple 
+    
+  desktop-launch:
+    command: bin/desktop-launch
+    plugs:
+      - desktop  
+      
+
+  info: 
+    command: sh $SNAP/bin/info.sh  
+    plugs: [network, network-bind, mount-observe, network-observe, system-observe, bluetooth-control]
+
+parts:
+
+  flask:
+    plugin: python
+    python-version: python3
+    python-packages: [flask]
+    build-packages:
+      - python3-dev
+      - build-essential
+      
+  psutil:
+    plugin: python
+    python-version: python3
+    python-packages: [psutil]
+    build-packages:
+      - python3-dev
+      - build-essential
+ 
+  
+
+  python-code:  
+    source: ./Flask/
+    plugin: dump
+    organize:
+      '*': bin/Flask/
+
+  shscripts:  
+    source: ./shscripts/
+    plugin: dump
+    organize:
+      '*': bin/
+
+

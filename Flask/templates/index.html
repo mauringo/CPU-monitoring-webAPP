@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+    <meta charset="UTF-8">
+    <meta name="author" content="mauringo"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>CPU monitor</title>
+    <!-- Import favicon -->
+    <link rel="icon" href="./assets/icon.png"/>
+    <!-- Import stylesheets -->
+    <link rel="stylesheet" type="text/css" href="./libs/bootstrap-4.4.1-dist/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
+    <link rel="stylesheet" type="text/css" href="./css/style.css"/>
+    <!-- Import library scripts -->
+    <script src="./libs/jquery-3.4.1.min.js"></script>
+    <script src="./libs/popper.min.js"></script>
+    <script src="./libs/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
+    <script src="./js/script.js"></script>
+  </head>
+  <body onload="populate()">
+
+   
+   
+    <div class="container-fluid ">
+      <div class="row vertical-spacing ">
+        <div class="col-sm"></div>
+        <div class="col-sm-center">
+          <img class="rounded mx-auto responsive img-responsive" style="height:8em" src="./assets/Logo.png"/>
+       
+        </div>
+        <div class="col-sm"></div>
+      </div>
+    </div>
+    
+   
+    <div class="container-fluid vertical-spacing ">
+      <div class="row">
+        <div class="col-2"></div>
+        <div class="col-8">
+          
+          <h3>System Info</h3>
+          <span class="badge badge-primary"id="CPUReal">Number Of Physical cores: </span>
+          <span class="badge badge-primary"id="CPUVirtual">Number Of Virtual cores: </span>
+          <span class="badge badge-secondary"id="RAMinstalled">RAM instaled: </span>
+          <span class="badge badge-success"id="Architecture">Architecture: </span>
+          <span class="badge badge-success"id="Kernel">Kernel Version: </span>
+          <span class="badge badge-warning" id="Platform" >Platform Version: </span>
+          <span class="badge badge-warning" id="Processor" >Processor: </span>
+          
+          
+          
+       
+        </div>
+        <div class="col-2">
+          
+          
+       
+        </div>
+      </div>
+    </div>
+
+   
+    <div class="container-fluid ">
+      <div class="row vertical-spacing ">
+        <div class="col-2"></div>
+        <div class="col-8">
+          <h3>System Monitor</h3>
+          <label for="cpu">Cpu Load % :</label>
+          <div class="progress vertical-spacing">
+            
+            <div class="progress-bar progress-bar-striped progress-bar-animated" id="cpu" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <label for="RAM">RAM usage % :</label>
+          <div class="progress vertical-spacing">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" id="RAM" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+         
+          <div class="form-group">
+            <label for="Thermal">Thermal Info:</label>
+            <textarea class="form-control" rows="6" id="Thermal"  placeholder="Thermal Info" readonly></textarea>
+          </div>
+       
+        </div>
+        <div class="col-2"></div>
+      </div>
+    </div>
+
+    
+    
+  </body>
+  <!-- Site footer -->
+ <!-- Footer -->
+<footer class="page-footer font-small blue">
+
+  <!-- Copyright -->
+  <div class="footer-copyright text-center py-3 vertical-double-spacing">2020 - 
+    <a href="https://github.com/mauringo/"> GitHub</a>
+  </div>
+  <!-- Copyright -->
+
+</footer>
+
+</html>
