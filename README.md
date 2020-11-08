@@ -3,11 +3,11 @@
 
 
 
-# mongodb36-configurable-snap
+# CPU-Monitoring-webAPP
 
 
 
-A fully configurable mongodb 3.6.3 snap 
+
 
 Installable trough snapd:
 
