@@ -15,7 +15,13 @@ apps:
  
   flask-server: 
     command: sh $SNAP/bin/runserver.sh  
-    plugs: [network, network-bind, mount-observe, network-observe, system-observe, bluetooth-control]
+    plugs:
+      - gsettings
+      - udisks2
+      - hardware-observe
+      - system-observe
+      - network-observe
+      - mount-observe
     daemon: simple 
     
   desktop-launch:
