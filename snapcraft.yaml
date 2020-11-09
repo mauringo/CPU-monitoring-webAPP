@@ -17,15 +17,14 @@ apps:
     command: sh $SNAP/bin/runserver.sh  
     plugs:
       - network-control
-      - process-control
-      - system-observe
+      - network-observe
       - network
       - network-bind
+      - process-control
       - gsettings
       - udisks2
       - hardware-observe
       - system-observe
-      - network-observe
       - mount-observe
     daemon: simple 
     
