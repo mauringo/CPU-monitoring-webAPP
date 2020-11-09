@@ -26,7 +26,8 @@
 
     function usageinfo() {
         var data=JSON.parse(httpGet(location.origin+"/usagedata"));
-       
+
+    
         $('#cpu').attr('aria-valuenow', data.CPU).css('width', `${data.CPU}%`);
         $('#RAM').attr('aria-valuenow', data.RAM).css('width', `${data.RAM}%`);
         $('#Thermal').attr('placeholder', data.temp);
