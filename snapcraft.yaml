@@ -1,9 +1,9 @@
 name: cpu-monitoring-webapp
-version: '0.1.1'
+version: '0.1.2'
 base: core18
 summary: Simple WebAPP to monitor your system usage
 description: |
-     Isntall the app and navigate to http://yourDeviceIp:12121 and monitor your device CPU/RAM
+     Install the app and navigate to http://yourDeviceIp:12121 and monitor your device CPU/RAM
      usage
       
 confinement: strict
@@ -16,6 +16,9 @@ apps:
   flask-server: 
     command: sh $SNAP/bin/runserver.sh  
     plugs:
+      - network-control
+      - process-control
+      - system-observe
       - network
       - network-bind
       - gsettings
