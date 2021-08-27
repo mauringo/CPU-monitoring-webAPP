@@ -16,6 +16,8 @@
     <script src="./libs/popper.min.js"></script>
     <script src="./libs/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
     <script src="./js/script.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/plotly-2.3.1.min.js"></script>
   </head>
   <body onload="populate()">
 
@@ -85,7 +87,24 @@
       </div>
     </div>
 
-    
+    <div class="container-fluid ">
+      <div class="row vertical-spacing ">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-4">
+          <div  id="CPUgraph">
+            <!-- Append graph here -->
+          </div>
+       
+        </div>
+        <div class="col-sm-4">
+          <div  id="RAMgraph">
+            <!-- Append graph here -->
+          </div>
+       
+        </div>
+        <div class="col-sm-2"></div>
+      </div>
+    </div>
     
   </body>
   <!-- Site footer -->
