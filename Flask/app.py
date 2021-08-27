@@ -61,8 +61,36 @@ def getSystemUsageInfo():
         info={}
         info['CPU']=psutil.cpu_percent()
         info['RAM']=psutil.virtual_memory().percent
-        info['temp']=str(psutil.sensors_temperatures())
-        return json.dumps(info)
+        lista = []
+        oldentries=[]
+        b=""
+        try:
+            temps = psutil.sensors_temperatures()
+            if not temps:
+                info['temp']="none"
+                return json.dumps(info)
+            for name, entries in temps.items():
+                
+               
+                for entry in entries:
+                    if not entry in oldentries:
+                        oldentries.append(entry)
+                        b=b+"device: " + str( entry.label or name) + " Current Temperature: " + str(entry.current)+"°C" + " High Value: " + str(entry.high)+"°C" + " Critical Value: " +str(entry.critical)+ "°C" +  "\n"
+                
+                        a=[]
+                        a.append(entry.label or name)
+                        a.append(entry.current)
+                        a.append(entry.high)
+                        a.append(entry.critical)
+                        if a not in lista:
+                            lista.append(a)
+            info['temp']=b
+            #print(b) 
+            #print (lista)             
+            return json.dumps(info)
+        except Exception as e:
+            info['temp']="none"
+            return json.dumps(info)
     except Exception as e:
         print(e)
 
