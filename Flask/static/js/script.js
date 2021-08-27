@@ -37,6 +37,25 @@ var RamY=[];
     usageinfo();
     }
 
+
+    function download_csv() {
+        var csv = 'Cpu,CpuTime,Ram,Ramtime\n';
+        for (let i = 0; i < CpuX.length; i++) {
+            csv += CpuY[i] + ',' + CpuX[i]+ ',' +  RamY[i] + ',' + RamX[i];
+            csv += "\n";
+          }
+       
+     
+        console.log(csv);
+        var hiddenElement = document.createElement('a');
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = 'CPU_RAM_usage.csv';
+        hiddenElement.click();
+    }
+    
+     
+    
     function usageinfo() {
         var data=JSON.parse(httpGet(location.origin+"/usagedata"));
 
