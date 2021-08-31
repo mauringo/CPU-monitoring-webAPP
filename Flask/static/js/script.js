@@ -74,9 +74,7 @@ function usageinfo() {
         $('#Thermal').attr('placeholder', data.temp);
         updateTableTemp(data.temp,"temperature");
 
-        $('#CPUlabel').attr('aria-valuenow', data.CPU).css('width', `${data.CPU}%`);
-        $('#RAMlabel').attr('aria-valuenow', data.RAM).css('width', `${data.RAM}%`);
-    
+       
         document.getElementById('CPUlabel').innerHTML= 'Cpu Load : '+data.CPU +' %';
         document.getElementById('RAMlabel').innerHTML= 'RAM usage : '+data.RAM +' %';
 
