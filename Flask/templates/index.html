@@ -18,11 +18,12 @@
     <script src="./js/script.js"></script>
     <script src="./js/utils.js"></script>
     <script src="./js/plotly-2.3.1.min.js"></script>
+    <link href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css" rel="stylesheet">
+
+    
   </head>
   <body onload="populate()">
-
-   
-   
+     
     <div class="container-fluid ">
       <div class="row vertical-spacing ">
         <div class="col-sm"></div>
@@ -77,11 +78,8 @@
             <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" id="RAM" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
          
-          <div class="form-group">
-            <label for="Thermal">Thermal Info:</label>
-            <textarea class="form-control" rows="6" id="Thermal"  placeholder="Thermal Info" readonly></textarea>
-          </div>
-       
+      
+        
         </div>
         <div class="col-2"></div>
       </div>
@@ -106,12 +104,76 @@
         <div class="col-sm-2"></div>
       </div>
     </div>
+
    <div class="container my-3 bg-light">
       <div class="col-md-12 text-center">
           <button type="button" class="btn btn-primary" onclick="download_csv()">Download CSV</button> 
       </div>
   </div>
+  <div class="container-fluid ">
+    <div class="row vertical-spacing ">
+      <div class="col-2"></div>
+      <div class="col-8">    
+          <h5>Temperature: </h5>
+          <table id="temperature" class="table">
+            <thead>
+              <tr>
+                  <th data-field="PID">Device</th>
+                  <th data-field="temperature">Temperature</th>
+                  <th data-field="high">high</th>
+                  <th data-field="critical">critical</th>
+              </tr>
+          </thead>
+        </table>       
+      </div>
+      <div class="col-2"></div>
+    </div>
+  </div>
+
+  <div class="container my-3 bg-light vertical-spacing">
+    <div class="col-md-12 text-center">
+        <button type="button" class="btn btn-primary" onclick="switchMonitor()">Activate/Deactivate Task Monitor</button> 
+    </div>
+</div>
    
+  <div class="container-fluid ">
+    <div class="row vertical-spacing ">
+      <div class="col-sm-2">
+        
+      </div>
+      <div class="col-sm-4">
+        <h5>Processes: RAM utilizaztion  </h5>
+        <table id="ramtable" class="table">
+          <thead>
+             <tr>
+                <th data-field="PID">PID</th>
+                <th data-field="Name">Name</th>
+                <th data-field="username">username</th>
+                <th data-field="RAM">RAM</th>
+                <th data-field="CPU">CPU</th>
+             </tr>
+         </thead>
+      </table>
+     
+      </div>
+      <div class="col-sm-4">
+        <h5>Processes: CPU utilization</h5>
+        <table id="cputable" class="table">
+          <thead>
+             <tr>
+                <th data-field="PID">PID</th>
+                <th data-field="Name">Name</th>
+                <th data-field="username">username</th>
+                <th data-field="RAM">RAM</th>
+                <th data-field="CPU">CPU</th>
+             </tr>
+         </thead>
+      </table>
+     
+      </div>
+      <div class="col-sm-2"></div>
+    </div>
+  </div>
 
   </body>
   <!-- Site footer -->
@@ -127,3 +189,5 @@
 </footer>
 
 </html>
+
+<

@@ -1,32 +1,35 @@
-var graph1='CPUgraph';
-var color1='#0079fc';
-var data1='CPU';
-var range1=[0, 100];
-var title1='CPU %';
+var switchMonitorVal= false;
 
-var graph2='RAMgraph';
-var color2='#27a849';
-var data2='RAM';
-var range2=[0, 100];
-var title2='RAM %';
-            
-var CpuX=[];
-var CpuY=[];
-var RamX=[];
-var RamY=[];
-
-    function httpGet(theUrl)
-    {
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
-    xmlHttp.send( null );
-    return xmlHttp.responseText;
-    }
-
-    
-    function populate() {
-    var data=JSON.parse(httpGet(location.origin+"/staticdata"));
+function switchMonitor(){
+    switchMonitorVal=! switchMonitorVal;
    
+}
+
+
+function httpGet(theUrl) {   let reqHeader = new Headers();
+    reqHeader.append('Content-Type', 'text/json');
+    let initObject = {
+        method: 'GET', headers: reqHeader,
+    };
+
+    return fetch(theUrl,initObject)
+        .then((response) => { 
+            return response.json().then((data) => {
+                //console.log(data);
+                return data;
+            }).catch((err) => {
+                console.log(err);
+            }) 
+        });
+
+}
+
+
+function populate() {
+var mypromise=(httpGet(location.origin+"/staticdata"));
+mypromise.then((data) => {
+    //console.log(data);
+    
     document.getElementById('CPUReal').innerHTML+=data.phcpu;
     document.getElementById('CPUVirtual').innerHTML+=data.vrcpu;
     document.getElementById('RAMinstalled').innerHTML+=data.ram;
@@ -35,38 +38,45 @@ var RamY=[];
     document.getElementById('Processor').innerHTML+=data.processor;
     document.getElementById('Platform').innerHTML+=data.platform;
     usageinfo();
-    }
+  });
+
+}
 
 
-    function download_csv() {
-        var csv = 'Cpu,CpuTime,Ram,Ramtime\n';
-        for (let i = 0; i < CpuX.length; i++) {
-            csv += CpuY[i] + ',' + CpuX[i]+ ',' +  RamY[i] + ',' + RamX[i];
-            csv += "\n";
-          }
-       
-     
-        console.log(csv);
-        var hiddenElement = document.createElement('a');
-        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
-        hiddenElement.target = '_blank';
-        hiddenElement.download = 'CPU_RAM_usage.csv';
-        hiddenElement.click();
-    }
+function download_csv() {
+    var csv = 'Cpu,CpuTime,Ram,Ramtime\n';
+    for (let i = 0; i < CpuX.length; i++) {
+        csv += CpuY[i] + ',' + CpuX[i]+ ',' +  RamY[i] + ',' + RamX[i];
+        csv += "\n";
+        }
     
-     
     
-    function usageinfo() {
-        var data=JSON.parse(httpGet(location.origin+"/usagedata"));
+   // console.log(csv);
+    var hiddenElement = document.createElement('a');
+    hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+    hiddenElement.target = '_blank';
+    hiddenElement.download = 'CPU_RAM_usage.csv';
+    hiddenElement.click();
+}
 
-     
+    
+
+function usageinfo() {
+    var mypromise=httpGet(location.origin+"/usagedata");
+
+    mypromise.then((data) => {
+        console.log(data.temp);
+            
+            
+        
         $('#cpu').attr('aria-valuenow', data.CPU).css('width', `${data.CPU}%`);
         $('#RAM').attr('aria-valuenow', data.RAM).css('width', `${data.RAM}%`);
         $('#Thermal').attr('placeholder', data.temp);
+        updateTableTemp(data.temp,"temperature");
 
         $('#CPUlabel').attr('aria-valuenow', data.CPU).css('width', `${data.CPU}%`);
         $('#RAMlabel').attr('aria-valuenow', data.RAM).css('width', `${data.RAM}%`);
-       
+    
         document.getElementById('CPUlabel').innerHTML= 'Cpu Load : '+data.CPU +' %';
         document.getElementById('RAMlabel').innerHTML= 'RAM usage : '+data.RAM +' %';
 
@@ -94,24 +104,154 @@ var RamY=[];
             RamX.shift();
             RamY.shift();
         }
-
+        
         loadMyGraph();
+
+        if (switchMonitorVal){
+            processesInfo();
         }
-    
-    setInterval(function() {
-    
-        usageinfo();
-        loadMyGraph();
-   
-    }, 3000);
-
-    function loadMyGraph(){
-        
-        loadGraph(graph1,color1,title1,range1,CpuX, CpuY);
-        loadGraph(graph2,color2,title2,range2,CpuX, RamY);
-    
+        else{
+            clearTable("cputable");
+            clearTable("ramtable");
+        }
+        });
       
-        
     }
 
+    function processesInfo() {
+        var mypromise=httpGet(location.origin+"/processes");
+
+        mypromise.then((data) => {
+            
+            
+            updateTable(data.cpuProcesses,"cputable");
+            updateTable(data.ramProcesses,"ramtable");
+            });
+            
+        }
+
+    function updateTable(data,tablename) {
+        
+        var rows = []
+        var tablecontents;
+        for (var i = 0; i < data.length; i++) {
+          rows.push({
+           
+            PID: data[i].pid,
+            Name: data[i].name,
+            username:data[i].username,
+            RAM:data[i].vms,
+            CPU:data[i].cpu_percent
+          })
+          
+        }
+       
+        
+        var tablecontents = ' <thead>  <tr>    <th data-field="PID">PID</th>   <th data-field="Name">Name</th><th data-field="username">username</th><th data-field="RAM">RAM</th> <th data-field="CPU">CPU</th>     </tr>  </thead>';
+
+        tablecontents += "<tbody>";
+        for (var i = 0; i < rows.length; i++) {
+            
+            tablecontents += "<tr>";
+           
+                tablecontents += "<td>" + rows[i].PID + "</td>";
+                tablecontents += "<td>" + rows[i].Name + "</td>";
+                tablecontents += "<td>" + rows[i].username + "</td>";
+                tablecontents += "<td>" + rows[i].RAM + "</td>";
+                tablecontents += "<td>" + rows[i].CPU + "</td>";
+            tablecontents += "</tr>";
+            
+        }
+        tablecontents += "</tbody>";
+        document.getElementById(tablename).innerHTML = tablecontents;
+
+       
     
+      }
+
+      function updateTableTemp(data,tablename) {
+        
+        var rows = []
+        var tablecontents;
+       
+        for (var i = 0; i < data.length; i++) {
+          rows.push({
+           
+            PID: data[i][0],
+            Name: data[i][1],
+            username:data[i][2],
+            RAM:data[i][3]
+            
+          })
+          
+        }
+       
+        console.log(rows);
+        var tablecontents = ' <thead>  <tr>    <th data-field="PID">Device</th>  <th data-field="username">Temperature </th><th data-field="RAM">High value</th> <th data-field="CPU">Critical Value</th>     </tr>  </thead>';
+
+        tablecontents += "<tbody>";
+        for (var i = 0; i < rows.length; i++) {
+            
+            tablecontents += "<tr>";
+           
+                tablecontents += "<td>" + rows[i].PID + "</td>";
+                tablecontents += "<td>" + rows[i].Name + "</td>";
+                tablecontents += "<td>" + rows[i].username + "</td>";
+                tablecontents += "<td>" + rows[i].RAM + "</td>";
+              
+            tablecontents += "</tr>";
+            
+        }
+        tablecontents += "</tbody>";
+        document.getElementById(tablename).innerHTML = tablecontents;
+
+       
+    
+      }
+    
+      function clearTable(tablename) {
+        
+        
+     
+
+        var tablecontents = ' <thead>  <tr>    <th data-field="PID">PID</th>   <th data-field="Name">Name</th><th data-field="username">username</th><th data-field="RAM">RAM</th> <th data-field="CPU">CPU</th>     </tr>  </thead>';
+       
+        document.getElementById(tablename).innerHTML = tablecontents;
+
+       
+    
+      }
+
+
+setInterval(function() {
+
+    usageinfo();
+    loadMyGraph();
+
+}, 3000);
+
+function loadMyGraph(){
+    
+    loadGraph(graph1,color1,title1,range1,CpuX, CpuY);
+    loadGraph(graph2,color2,title2,range2,CpuX, RamY);
+}
+
+
+
+
+var graph1='CPUgraph';
+var color1='#0079fc';
+var data1='CPU';
+var range1=[0, 100];
+var title1='CPU %';
+
+var graph2='RAMgraph';
+var color2='#27a849';
+var data2='RAM';
+var range2=[0, 100];
+var title2='RAM %';
+            
+var CpuX=[];
+var CpuY=[];
+var RamX=[];
+var RamY=[];    
