@@ -1,0 +1,64 @@
+    @import url('https://fonts.googleapis.com/css?family=Bungee+Shade&subset=latin-ext');
+
+    body {
+        margin: 20px;
+        padding: 0;
+        font-family: 'Bungee Shade', cursive;
+    }
+
+    .game-main-section {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .name-section {
+        font-size: 1.6rem;
+        letter-spacing: 0.5rem;
+    }
+
+    .score-section {
+        margin-bottom: 2rem;
+    }
+
+    .score-span {
+        font-size: 2rem;
+        color: #84b71c;
+        font-weight: bold;
+    }
+
+    .game-over {
+        opacity: 0;
+        transition: .5s;
+        filter: blur(20px);
+        transform: scale(.5);
+        background-color: red;
+        position: fixed;
+    }
+
+    .game-over.active {
+        display: flex;
+        justify-content: center;
+        opacity: 1;
+        z-index: 1;
+        filter: blur(0);
+        transform: scale(1);
+    }
+
+    button {
+        width: 200px;
+        height: 100px;
+        font-size: 2rem;
+        color: #ffffff;
+        background-color: #84b71c;
+        letter-spacing: 2px;
+        font-family: 'Bungee Shade', cursive;
+        padding: 5px;
+    }
+
+    .try-again {
+        position: absolute;
+        top: 45%;
+        left: 55%;
+        z-index: 1;
+    }

@@ -25,7 +25,7 @@ os.chdir(dir_path)
 @app.route('/')
 def index():
     
-    return render_template('index.html')
+    return app.send_static_file('index.html')
 
 
 @app.route('/staticdata',methods=['GET', 'POST'])
