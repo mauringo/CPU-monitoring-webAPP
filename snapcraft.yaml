@@ -42,7 +42,6 @@ parts:
 
   flask:
     plugin: python
-    python-version: python3
     python-packages: [flask]
     build-packages:
       - python3-dev
@@ -50,7 +49,6 @@ parts:
       
   psutil:
     plugin: python
-    python-version: python3
     python-packages: [psutil]
     build-packages:
       - python3-dev
