@@ -34,10 +34,6 @@ apps:
       - desktop  
       
 
-  info: 
-    command: sh $SNAP/bin/info.sh  
-    plugs: [network, network-bind, mount-observe, network-observe, system-observe, bluetooth-control]
-
 parts:
 
   flask:
