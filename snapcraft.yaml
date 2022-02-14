@@ -14,7 +14,7 @@ apps:
 
  
   flask-server: 
-    command: sh $SNAP/bin/runserver.sh  
+    command: bin/runserver.wrapper  
     plugs:
       - network-control
       - network-observe
