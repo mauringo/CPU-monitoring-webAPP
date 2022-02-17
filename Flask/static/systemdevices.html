@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+    <meta charset="UTF-8">
+    <meta name="author" content="mauringo"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>CPU monitor</title>
+    <!-- Import favicon -->
+    <link rel="icon" href="./assets/icon.png"/>
+    <!-- Import stylesheets -->
+    <link rel="stylesheet" type="text/css" href="./libs/bootstrap-4.4.1-dist/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
+    <link rel="stylesheet" type="text/css" href="./css/style.css"/>
+    <!-- Import library scripts -->
+    <script src="./libs/jquery-3.4.1.min.js"></script>
+
+    <script src="./libs/popper.min.js"></script>
+    <script src="./libs/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
+    <script src="./js/devices.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/plotly-2.3.1.min.js"></script>
+    <link href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css" rel="stylesheet">
+
+    
+  </head>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+
+    <a class="navbar-brand" href="#">Cpu Monitoring</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarText">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item ">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/systemdevices">System Devices<span class="sr-only">(current)</span></a>
+        </li>
+        
+    </div>
+  </nav>
+  <body onload="populate2()">
+     
+    <div class="container-fluid ">
+      <div class="row vertical-spacing ">
+        <div class="col-sm"></div>
+        <div class="col-sm-center">
+          <img class="rounded mx-auto responsive img-responsive" style="height:8em" src="./assets/Logo.png"/>
+       
+        </div>
+        <div class="col-sm"></div>
+      </div>
+    </div>
+    
+   
+    <div class="container-fluid vertical-spacing ">
+      <div class="row">
+        <div class="col-2"></div>
+        <div class="col-8">
+          
+          <h3>System Additional Info and Installed devices</h3>
+          <span class="badge badge-primary"id="Uname">Uname -a: </span>
+          <span class="badge badge-success"id="Uptime">Uptime: </span>
+          
+          
+          
+          
+       
+        </div>
+        <div class="col-2">
+          
+          
+       
+        </div>
+      </div>
+    </div>
+    
+
+    <div class="container my-3 bg-light vertical-spacing">
+      <div class="col-md-12 text-center">
+          <button type="button" class="btn btn-primary" onclick="populate2()">Update Values</button> 
+      </div>
+  </div>
+   
+    <div class="container-fluid ">
+      <div class="row vertical-spacing ">
+        <div class="col-sm-2">
+          
+        </div>
+        <div class="col-sm-8">
+          <h5>Cameras: </h5>
+          <table id="camerastable" class="table">
+            <thead>
+               <tr>
+                  <th data-field="PID">List Of Installed cameras</th>
+                
+               </tr>
+           </thead>
+        </table>
+       
+        </div>
+        
+        <div class="col-sm-2"></div>
+      </div>
+    </div>
+
+
+    <div class="container my-3 bg-light vertical-spacing">
+      <div class="col-md-12 text-center">
+          <button type="button" class="btn btn-primary" onclick="populate2()">Update Values</button> 
+      </div>
+  </div>
+   
+    <div class="container-fluid ">
+      <div class="row vertical-spacing ">
+        <div class="col-sm-2">
+          
+        </div>
+      
+        <div class="col-sm-8">
+          <h5>List of USB devices</h5>
+          <table id="lsusb" class="table">
+            <thead>
+               <tr>
+                  <th data-field="PID">List of installed USB</th>
+              
+               </tr>
+           </thead>
+        </table>
+       
+        </div>
+        <div class="col-sm-2"></div>
+      </div>
+    </div>
+
+
+    <div class="container my-3 bg-light vertical-spacing">
+      <div class="col-md-12 text-center">
+          <button type="button" class="btn btn-primary" onclick="populate2()">Update Values</button> 
+      </div>
+  </div>
+   
+    <div class="container-fluid ">
+      <div class="row vertical-spacing ">
+        <div class="col-sm-2">
+          
+        </div>
+      
+        <div class="col-sm-8">
+          <h5>List of PCI devices</h5>
+          <table id="lspci" class="table">
+            <thead>
+               <tr>
+                  <th data-field="PID">List of installed PCI</th>
+              
+               </tr>
+           </thead>
+        </table>
+       
+        </div>
+        <div class="col-sm-2"></div>
+      </div>
+    </div>
+    
+
+  <div class="container my-3 bg-light vertical-spacing">
+    <div class="col-md-12 text-center">
+      <h3>Bored? Play a Game!</h3>
+    </div>
+</div>
+<div class="container my-3 bg-light vertical-spacing">
+  <div class="col-md-12 text-center">
+     
+        
+        <a class="btn btn-success" href="./games/snake/index.html" target="_blank">Snake</a>
+        <a class="btn btn-danger" href="./games/gba/index.html" target="_blank">Game Boy Advance</a>
+        <a class="btn btn-primary" href="./games/spaceinvaders/index.html" target="_blank">Space Invaders</a>
+        
+     
+     
+     
+      
+    </div>
+  </div>
+
+  </body>
+  <!-- Site footer -->
+ <!-- Footer -->
+<footer class="page-footer font-small blue">
+
+  <!-- Copyright -->
+  <div class="footer-copyright text-center py-3 vertical-double-spacing">2020 - 
+    <a href="https://github.com/mauringo/CPU-monitoring-webAPP"> GitHub</a>
+  </div>
+  <!-- Copyright -->
+
+</footer>
+
+</html>
+
+<

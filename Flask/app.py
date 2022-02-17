@@ -27,6 +27,10 @@ def index():
     
     return app.send_static_file('index.html')
 
+@app.route('/systemdevices')
+def systemdevices():
+    
+    return app.send_static_file('systemdevices.html')
 
 @app.route('/staticdata',methods=['GET', 'POST'])
 def stream():              
@@ -156,6 +160,52 @@ def getListOfProcessSortedByCPU(numofprocesses):
     # Sort list of dict by key vms i.e. memory usage
     listOfProcObjects = sorted(listOfProcObjects, key=lambda procObj: procObj['cpu_percent'], reverse=True)
     return listOfProcObjects[:numofprocesses]
+
+## libraries wrappers 
+
+def ListSubprogram(CMD):
+    try:
+        result = subprocess.run(CMD, stdout=subprocess.PIPE)
+        listgross=result.stdout.decode("utf-8").replace('\t','').split('\n')
+        realilist = [string for string in listgross if string != ""]
+    
+        return(realilist)
+    except:
+        pass
+
+def ListSubprogramPlain(CMD):
+    result = subprocess.run(CMD, stdout=subprocess.PIPE)
+    listgross=result.stdout.decode("utf-8").replace('\t','').split('\n')
+    realilist = [string for string in listgross if string != ""]
+    print(result.stdout)
+
+
+###
+@app.route('/listDevices',methods=['GET', 'POST'])
+def listDevices(): 
+    info={}             
+    try:
+        info={}
+        info['lsusb']=ListSubprogram(['lsusb'])
+        info['lspci']=ListSubprogram(['lspci'])
+       # info['hci']=ListSubprogram(['hciconfig'])
+        info['uname']=ListSubprogram(['uname','-a'])
+        info['uptime']=ListSubprogram(['uptime'])
+        info['cameras']=ListSubprogram(['v4l2-ctl','--list-devices'])
+        return json.dumps(info)
+    except:
+        pass
+
+   
+
+@app.route('/lsusb',methods=['GET', 'POST'])
+def lsusb():              
+
+    return Response(getSystemUsageInfo(), mimetype='json')
+
+
+
+
 
 ##server start
 

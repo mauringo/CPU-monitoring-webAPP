@@ -1,5 +1,5 @@
 name: cpu-monitoring-webapp
-version: '0.9.8'
+version: '1.0.1'
 base: core20
 summary: Simple WebAPP to monitor your system usage
 description: |
@@ -21,6 +21,7 @@ apps:
       - network
       - network-bind
       - process-control
+      - raw-usb
       - gsettings
       - udisks2
       - hardware-observe
@@ -43,6 +44,11 @@ parts:
     python-packages: 
       - psutil
       - flask
+      
+    stage-packages:
+      - usbutils
+      - pciutils
+      - v4l-utils
     build-packages:
       - python3-dev
       - python3-wheel

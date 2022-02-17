@@ -43,6 +43,9 @@ mypromise.then((data) => {
 }
 
 
+
+
+
 function download_csv() {
     var csv = 'Cpu,CpuTime,Ram,Ramtime\n';
     for (let i = 0; i < CpuX.length; i++) {
