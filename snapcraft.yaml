@@ -15,7 +15,6 @@ apps:
  
   flask-server: 
     command: bin/runserver.wrapper  
-    source: .
     plugs:
       - network-control
       - network-observe
@@ -45,7 +44,7 @@ parts:
     python-packages: 
       - psutil
       - flask
-      
+    source: .
     stage-packages:
       - usbutils
       - pciutils
