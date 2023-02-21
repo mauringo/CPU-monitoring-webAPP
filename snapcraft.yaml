@@ -15,6 +15,7 @@ apps:
  
   flask-server: 
     command: bin/runserver.wrapper  
+    source: .
     plugs:
       - network-control
       - network-observe
