@@ -90,4 +90,4 @@ slots:
     content: package-run
     source:
       write:
-        - $SNAP_DATA/package-run/${SNAPCRAFT_PROJECT_NAM
+        - $SNAP_DATA/package-run/${SNAPCRAFT_PROJECT_NAME}
