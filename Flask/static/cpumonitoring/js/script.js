@@ -26,7 +26,7 @@ function httpGet(theUrl) {   let reqHeader = new Headers();
 
 
 function populate() {
-var mypromise=(httpGet(location.origin+"/staticdata"));
+var mypromise=(httpGet(location.origin+"/cpumonitoring/staticdata"));
 mypromise.then((data) => {
     //console.log(data);
     
@@ -65,7 +65,7 @@ function download_csv() {
     
 
 function usageinfo() {
-    var mypromise=httpGet(location.origin+"/usagedata");
+    var mypromise=httpGet(location.origin+"/cpumonitoring/usagedata");
 
     mypromise.then((data) => {
         console.log(data.temp);
@@ -120,7 +120,7 @@ function usageinfo() {
     }
 
     function processesInfo() {
-        var mypromise=httpGet(location.origin+"/processes");
+        var mypromise=httpGet(location.origin+"/cpumonitoring/processes");
 
         mypromise.then((data) => {
             

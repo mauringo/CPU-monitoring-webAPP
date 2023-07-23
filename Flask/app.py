@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request, session, url_for, Response
+from flask import Flask, redirect, render_template, request, session, url_for, Response, Blueprint
 
 import psutil
 import json
@@ -7,8 +7,8 @@ import time
 import subprocess
 import os 
 import sys
-
-
+import os
+from werkzeug.serving import run_simple
 ##settings 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -22,27 +22,27 @@ os.chdir(dir_path)
 
 ########## serving functions
 
-@app.route('/')
+@app.route('/cpumonitoring/')
 def index():
     
-    return app.send_static_file('index.html')
+    return app.send_static_file('cpumonitoring/index.html')
 
-@app.route('/systemdevices')
+@app.route('/cpumonitoring/systemdevices')
 def systemdevices():
     
-    return app.send_static_file('systemdevices.html')
+    return app.send_static_file('cpumonitoring/systemdevices.html')
 
-@app.route('/staticdata',methods=['GET', 'POST'])
+@app.route('/cpumonitoring/staticdata',methods=['GET', 'POST'])
 def stream():              
 
     return Response(getSystemInfo(), mimetype='json')
 
-@app.route('/usagedata',methods=['GET', 'POST'])
+@app.route('/cpumonitoring/usagedata',methods=['GET', 'POST'])
 def data():              
 
     return Response(getSystemUsageInfo(), mimetype='json')
 
-@app.route('/processes',methods=['GET', 'POST'])
+@app.route('/cpumonitoring/processes',methods=['GET', 'POST'])
 def dataproc():              
 
     return Response(getProcesses(), mimetype='json')  
@@ -198,7 +198,7 @@ def listDevices():
 
    
 
-@app.route('/lsusb',methods=['GET', 'POST'])
+@app.route('/cpumonitoring/lsusb',methods=['GET', 'POST'])
 def lsusb():              
 
     return Response(getSystemUsageInfo(), mimetype='json')
@@ -210,4 +210,12 @@ def lsusb():
 ##server start
 
 if __name__ == '__main__':
-   app.run(host='0.0.0.0',debug = False, port=12121)
+  
+
+    if "SNAP_DATA" in os.environ:
+        run_simple('unix://'+os.environ['SNAP_DATA']+'/package-run/cpu-monitoring-webapp/example.sock', 0, app)
+        #app.run(host='0.0.0.0',debug = False, port=3125)
+    else:
+
+        app.run(host='0.0.0.0',debug = False, port=12121)
+

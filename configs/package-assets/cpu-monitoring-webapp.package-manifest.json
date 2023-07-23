@@ -1,0 +1,34 @@
+{
+    "version": "1.0.0",
+    "id": "cpu-monitoring",
+        "services": {
+      "proxyMapping": [
+        {
+          "name": "cpu-monitoring-server",
+          "url": "/cpumonitoring",
+          "binding": "unix://{$SNAP_DATA}/package-run/cpu-monitoring-webapp/example.sock"    
+        }
+      ]
+    },
+    "menus": {
+      "sidebar": [
+        {
+          "id": "cpu-monitoring-server",
+          "target": "_blank",
+          "title": "CPU-Monitoring",
+          "icon": "Bosch-Ic-worldwideweb",
+          "link": "/cpumonitoring"
+        }
+      ],
+      "settings": [
+      ],
+      "overview": [
+        {
+          "id": "cpu-monitoring-server",
+          "title": "CPU-Monitoring",
+          "icon": "Bosch-Ic-worldwideweb",
+          "link": "/cpumonitoring"
+        }
+      ]    
+    }
+  }

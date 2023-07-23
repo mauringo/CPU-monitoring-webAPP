@@ -2,9 +2,11 @@
 
 
 
+mkdir $SNAP_DATA/package-run
+mkdir $SNAP_DATA/package-run/cpu-monitoring-webapp
 
+cd $SNAP/bin/Flask/
 
-cd $SNAP/bin/Flask
 python3 app.py
 
 

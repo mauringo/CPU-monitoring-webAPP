@@ -1,5 +1,5 @@
 name: cpu-monitoring-webapp
-version: '1.0.1'
+version: '1.0.1-ctrlx'
 base: core22
 summary: Simple WebAPP to monitor your system usage
 description: |
@@ -68,4 +68,22 @@ parts:
     organize:
       '*': bin/
 
+  configs:
+    plugin: dump
+    source: ./configs
+    organize:
+      'package-assets/*': package-assets/${SNAPCRAFT_PROJECT_NAME}/
 
+slots:
+  package-assets:
+    interface: content
+    content: package-assets
+    source:
+      read:
+        - $SNAP/package-assets/${SNAPCRAFT_PROJECT_NAME}
+  package-run:
+    interface: content
+    content: package-run
+    source:
+      write:
+        - $SNAP_DATA/package-run/${SNAPCRAFT_PROJECT_NAME}
