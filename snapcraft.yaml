@@ -8,6 +8,10 @@ description: |
       
 confinement: strict
 grade: stable
+# Limit architectures as ppcel64 doesn't build currently
+architectures:
+  - build-on: amd64
+  - build-on: arm64
 
     
 apps:
@@ -86,4 +90,4 @@ slots:
     content: package-run
     source:
       write:
-        - $SNAP_DATA/package-run/${SNAPCRAFT_PROJECT_NAME}
+        - $SNAP_DATA/package-run/${SNAPCRAFT_PROJECT_NAM
