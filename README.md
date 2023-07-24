@@ -15,7 +15,8 @@ Installable trough snapd:
 
 
 command:
-*sudo snap install --edge cpu-monitoring-webapp
+
+    sudo snap install cpu-monitoring-webapp
 
 
 ## Step 0 - System setup - if needed
@@ -23,11 +24,11 @@ To bulid this snap snapcrft and multipass are needed.
 
 just run:
 
-*- sudo snap install snapcraft*
+ - sudo snap install snapcraft*
 
 and then
 
-*- sudo snap install muiltipass*
+ - sudo snap install muiltipass*
 
 ## Step 1 - Snap Build
 
