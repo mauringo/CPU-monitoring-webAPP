@@ -17,7 +17,7 @@
           "target": "_blank",
           "title": "CPU-Monitoring",
           "icon": "Bosch-Ic-worldwideweb",
-          "link": "https://${hostname}/cpumonitoring"
+          "link": "/cpumonitoring"
         }
       ],
       "settings": [
@@ -27,7 +27,7 @@
           "id": "cpu-monitoring-server",
           "title": "CPU-Monitoring",
           "icon": "Bosch-Ic-worldwideweb",
-          "link": "https://${hostname}/cpumonitoring"
+          "link": "/cpumonitoring"
         }
       ]    
     }
