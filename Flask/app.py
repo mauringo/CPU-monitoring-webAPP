@@ -9,15 +9,21 @@ import os
 import sys
 import os
 from werkzeug.serving import run_simple
+from werkzeug.middleware.proxy_fix import ProxyFix
+
+
 ##settings 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 print(dir_path)
 app = Flask(__name__, static_url_path='')
 
-
+app.wsgi_app = ProxyFix(
+    app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
+)
 
 os.chdir(dir_path)
+
 
 
 ########## serving functions
