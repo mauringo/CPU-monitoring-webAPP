@@ -35,4 +35,9 @@ Clone the repository, enter inside the folder. then run 'snapcraft'.
 
 ## Step3 
 
-have fun.
+have fun. Do you like the app? consider a donation!
+
+    bc1qpph2u3kl3runht2jv4mkql09g8lpetfzaexnsd
+
+
+![Alt text](Flask/static/assets/donate.png?raw=true "Title")

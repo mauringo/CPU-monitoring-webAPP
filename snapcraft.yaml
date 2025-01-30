@@ -1,5 +1,5 @@
 name: cpu-monitoring-webapp
-version: '1.0.1'
+version: '1.0.2'
 base: core22
 summary: Simple WebAPP to monitor your system usage
 description: |
