@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Device inventory · CPU Monitoring</title>
-  <link rel="icon" href="./assets/icon.png">
+  <link rel="icon" href="./assets/app-icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./libs/bootstrap-5.3.8-dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="./css/style.css">
   <script defer src="./libs/jquery-3.4.1.min.js"></script>
@@ -30,7 +30,7 @@
       <div><p class="eyebrow">YOUR SYSTEM, AT A GLANCE</p><h1 id="page-title">Device inventory</h1><p class="hero-description">Explore the hardware that powers your system.</p></div>
       <div class="hero-status"><span class="status-dot"></span><span id="refresh-status" role="status">Ready to scan hardware</span></div>
     </section>
-    <section class="panel host-summary" aria-label="Host information"><div><p class="eyebrow">HOST SYSTEM</p><p id="Uname">Waiting for system information…</p><p id="Uptime" class="muted">Waiting for uptime…</p></div><button class="btn btn-primary" type="button" onclick="populate2()" data-refresh>↻ Update all devices</button></section>
+    <section class="panel host-summary" aria-label="Host information"><div><p class="eyebrow">HOST SYSTEM</p><p id="Uname">Waiting for system information…</p><p id="Uptime" class="muted">Waiting for uptime…</p></div><div class="toolbar"><button id="theme-toggle" class="btn btn-outline-primary btn-sm" type="button" onclick="cycleTheme()">Theme: system</button><button class="btn btn-primary" type="button" onclick="populate2()" data-refresh>↻ Update all devices</button></div></section>
     <div class="device-grid">
       <section class="panel device-card" aria-labelledby="nvmetable-title">
         <div class="device-intro"><span class="device-icon" aria-hidden="true">SSD</span><span class="device-count" id="nvmetable-count">—</span></div>

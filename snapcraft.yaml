@@ -1,5 +1,12 @@
 name: cpu-monitoring-webapp
-version: '1.1.1'
+version: '2.0.1'
+platforms:
+  amd64:
+  arm64:
+  armhf:
+  ppc64el:
+  riscv64:
+  s390x:
 base: core26
 title: CPU Monitoring
 license: MIT
@@ -9,8 +16,19 @@ source-code: https://github.com/mauringo/CPU-monitoring-webAPP
 website: https://github.com/mauringo/CPU-monitoring-webAPP
 summary: Simple WebAPP to monitor your system usage
 description: |
-    Install the app and navigate to http://yourDeviceIp:12121 and monitor your device CPU/RAM
-     usage
+  CPU Monitoring is a lightweight Linux dashboard for observing system health.
+
+  Install the app, then open http://yourDeviceIp:12121 in a browser to view
+  live CPU and RAM usage, per-core activity, network traffic, disk usage,
+  temperature sensors, and process activity.
+
+  CPU and RAM history is shown in interactive graphs and can be downloaded
+  as CSV data. The Devices page lists USB and PCI hardware, cameras, NVMe
+  storage, accelerators, and additional system information.
+
+  Hardware observation, temperature readings, and process monitoring require
+  the appropriate Snap permissions. The Help menu reports the current
+  permissions and provides the commands needed to connect them.
       
 confinement: strict
 grade: stable
@@ -28,6 +46,7 @@ apps:
       - network-bind
       - process-control
       - raw-usb
+      - camera
       - gsettings
       - udisks2
       - hardware-observe
@@ -53,6 +72,8 @@ parts:
       - usbutils
       - pciutils
       - v4l-utils
+      - util-linux
+      - net-tools
     build-packages:
       - python3-dev
       - python3-wheel

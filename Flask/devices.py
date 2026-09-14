@@ -34,6 +34,22 @@ def discover_nvme(sysfs=Path('/sys')):
     return devices
 
 
+def discover_usb(sysfs=Path('/sys')):
+    devices = []
+    for device in entries(sysfs / 'bus/usb/devices'):
+        vendor = read_text(device / 'idVendor')
+        product_id = read_text(device / 'idProduct')
+        if not vendor or not product_id or ':' in device.name:
+            continue
+        product = read_text(device / 'product')
+        manufacturer = read_text(device / 'manufacturer')
+        serial = read_text(device / 'serial')
+        identity = ' '.join(filter(None, [manufacturer, product])) or f'USB device {vendor}:{product_id}'
+        details = [device.name, identity, f'{vendor}:{product_id}', serial]
+        devices.append(' — '.join(filter(None, details)))
+    return devices
+
+
 def discover_npus(sysfs=Path('/sys')):
     devices = {}
     # The accel subsystem includes NPUs and other compute accelerators.

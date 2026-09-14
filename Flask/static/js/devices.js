@@ -1,5 +1,22 @@
 let devicesLoading = false;
+const deviceThemeModes = ['system', 'light', 'dark'];
+const savedDeviceTheme = localStorage.getItem('cpu-monitor-theme');
+let deviceTheme = deviceThemeModes.includes(savedDeviceTheme) ? savedDeviceTheme : 'system';
+
+function applyDeviceTheme() {
+    document.documentElement.dataset.theme = deviceTheme;
+    const button = document.getElementById('theme-toggle');
+    if (button) button.textContent = 'Theme: ' + deviceTheme;
+}
+
+function cycleTheme() {
+    deviceTheme = deviceThemeModes[(deviceThemeModes.indexOf(deviceTheme) + 1) % deviceThemeModes.length];
+    localStorage.setItem('cpu-monitor-theme', deviceTheme);
+    applyDeviceTheme();
+}
+
 async function populate2(section = null) {
+    applyDeviceTheme();
     if (devicesLoading) return;
     devicesLoading = true;
     const buttons = document.querySelectorAll('[data-refresh]');
