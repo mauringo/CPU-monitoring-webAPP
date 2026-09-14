@@ -1,14 +1,3 @@
-#!/bin/bash
+#!/bin/sh
 
-
-
-
-
-cd $SNAP/bin/Flask
-python3 app.py
-
-
-
-exit 1
-
-
+exec "$SNAP/bin/python3" "$SNAP/bin/Flask/app.py"

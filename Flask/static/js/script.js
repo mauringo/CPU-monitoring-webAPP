@@ -2,6 +2,10 @@ var switchMonitorVal= false;
 
 function switchMonitor(){
     switchMonitorVal=! switchMonitorVal;
+    const button = document.getElementById('task-toggle');
+    button.setAttribute('aria-pressed', String(switchMonitorVal));
+    button.textContent = switchMonitorVal ? 'Pause task monitor' : 'Enable task monitor';
+    if (switchMonitorVal) processesInfo();
    
 }
 
@@ -30,13 +34,13 @@ var mypromise=(httpGet(location.origin+"/staticdata"));
 mypromise.then((data) => {
     //console.log(data);
     
-    document.getElementById('CPUReal').innerHTML+=data.phcpu;
-    document.getElementById('CPUVirtual').innerHTML+=data.vrcpu;
-    document.getElementById('RAMinstalled').innerHTML+=data.ram;
-    document.getElementById('Architecture').innerHTML+=data.architecture;
-    document.getElementById('Kernel').innerHTML+=data.kernel;
-    document.getElementById('Processor').innerHTML+=data.processor;
-    document.getElementById('Platform').innerHTML+=data.platform;
+    document.getElementById('CPUReal').textContent=data.phcpu;
+    document.getElementById('CPUVirtual').textContent=data.vrcpu;
+    document.getElementById('RAMinstalled').textContent=data.ram;
+    document.getElementById('Architecture').textContent=data.architecture;
+    document.getElementById('Kernel').textContent=data.kernel;
+    document.getElementById('Processor').textContent=data.processor;
+    document.getElementById('Platform').textContent=data.platform;
     usageinfo();
   });
 
@@ -78,8 +82,9 @@ function usageinfo() {
         updateTableTemp(data.temp,"temperature");
 
        
-        document.getElementById('CPUlabel').innerHTML= 'Cpu Load : '+data.CPU +' %';
-        document.getElementById('RAMlabel').innerHTML= 'RAM usage : '+data.RAM +' %';
+        document.getElementById('cpu-value').innerHTML=Number(data.CPU).toFixed(1)+'<span>%</span>';
+        document.getElementById('RAM-value').innerHTML=Number(data.RAM).toFixed(1)+'<span>%</span>';
+        document.getElementById('refresh-status').textContent='Updated '+new Date().toLocaleTimeString();
 
 
 
@@ -101,6 +106,7 @@ function usageinfo() {
         RamX.push(formattedTime);
 
         if (CpuX.length > 10000) {
+            CpuX.shift();
             CpuY.shift();
             RamX.shift();
             RamY.shift();
@@ -131,123 +137,74 @@ function usageinfo() {
             
         }
 
-    function updateTable(data,tablename) {
-        
-        var rows = []
-        var tablecontents;
-        for (var i = 0; i < data.length; i++) {
-          rows.push({
-           
-            PID: data[i].pid,
-            Name: data[i].name,
-            username:data[i].username,
-            RAM:data[i].vms,
-            CPU:data[i].cpu_percent
-          })
-          
-        }
-       
-        
-        var tablecontents = ' <thead>  <tr>    <th data-field="PID">PID</th>   <th data-field="Name">Name</th><th data-field="username">username</th><th data-field="RAM">RAM</th> <th data-field="CPU">CPU</th>     </tr>  </thead>';
+function displayNumber(value, unit = '') {
+    return typeof value === 'number' && Number.isFinite(value) ? value.toLocaleString(undefined, {maximumFractionDigits: 1}) + unit : '—';
+}
 
-        tablecontents += "<tbody>";
-        for (var i = 0; i < rows.length; i++) {
-            
-            tablecontents += "<tr>";
-           
-                tablecontents += "<td>" + rows[i].PID + "</td>";
-                tablecontents += "<td>" + rows[i].Name + "</td>";
-                tablecontents += "<td>" + rows[i].username + "</td>";
-                tablecontents += "<td>" + rows[i].RAM + "</td>";
-                tablecontents += "<td>" + rows[i].CPU + "</td>";
-            tablecontents += "</tr>";
-            
-        }
-        tablecontents += "</tbody>";
-        document.getElementById(tablename).innerHTML = tablecontents;
+function renderTable(id, headers, rows, message) {
+    const table = document.getElementById(id);
+    const head = document.createElement('thead');
+    const heading = head.insertRow();
+    headers.forEach(label => {
+        const cell = document.createElement('th');
+        cell.scope = 'col';
+        cell.textContent = label;
+        heading.appendChild(cell);
+    });
+    const body = document.createElement('tbody');
+    rows.forEach(values => {
+        const row = body.insertRow();
+        values.forEach(value => { row.insertCell().textContent = value == null ? '—' : value; });
+    });
+    if (!rows.length) {
+        const cell = body.insertRow().insertCell();
+        cell.colSpan = headers.length;
+        cell.className = 'empty-state';
+        cell.textContent = message;
+    }
+    table.replaceChildren(head, body);
+}
 
-       
-    
-      }
+function updateTable(data, tablename) {
+    renderTable(tablename, ['PID', 'Name', 'User', 'Virtual RAM (MiB)', 'CPU'],
+        data.map(row => [row.pid, row.name, row.username, displayNumber(row.vms), displayNumber(row.cpu_percent, '%')]),
+        'No processes available.');
+}
 
-      function updateTableTemp(data,tablename) {
-        
-        var rows = []
-        var tablecontents;
-       
-        for (var i = 0; i < data.length; i++) {
-          rows.push({
-           
-            PID: data[i][0],
-            Name: data[i][1],
-            username:data[i][2],
-            RAM:data[i][3]
-            
-          })
-          
-        }
-       
-        console.log(rows);
-        var tablecontents = ' <thead>  <tr>    <th data-field="PID">Device</th>  <th data-field="username">Temperature </th><th data-field="RAM">High value</th> <th data-field="CPU">Critical Value</th>     </tr>  </thead>';
+function updateTableTemp(data, tablename) {
+    renderTable(tablename, ['Device', 'Temperature', 'High', 'Critical'],
+        data.map(row => [row[0], ...row.slice(1).map(value => displayNumber(value, ' °C'))]),
+        'No temperature sensors detected or accessible.');
+}
 
-        tablecontents += "<tbody>";
-        for (var i = 0; i < rows.length; i++) {
-            
-            tablecontents += "<tr>";
-           
-                tablecontents += "<td>" + rows[i].PID + "</td>";
-                tablecontents += "<td>" + rows[i].Name + "</td>";
-                tablecontents += "<td>" + rows[i].username + "</td>";
-                tablecontents += "<td>" + rows[i].RAM + "</td>";
-              
-            tablecontents += "</tr>";
-            
-        }
-        tablecontents += "</tbody>";
-        document.getElementById(tablename).innerHTML = tablecontents;
-
-       
-    
-      }
-    
-      function clearTable(tablename) {
-        
-        
-     
-
-        var tablecontents = ' <thead>  <tr>    <th data-field="PID">PID</th>   <th data-field="Name">Name</th><th data-field="username">username</th><th data-field="RAM">RAM</th> <th data-field="CPU">CPU</th>     </tr>  </thead>';
-       
-        document.getElementById(tablename).innerHTML = tablecontents;
-
-       
-    
-      }
-
+function clearTable(tablename) {
+    renderTable(tablename, ['PID', 'Name', 'User', 'Virtual RAM (MiB)', 'CPU'], [],
+        'Enable the task monitor to view processes.');
+}
 
 setInterval(function() {
 
     usageinfo();
-    loadMyGraph();
 
 }, 3000);
 
 function loadMyGraph(){
     
     loadGraph(graph1,color1,title1,range1,CpuX, CpuY);
-    loadGraph(graph2,color2,title2,range2,CpuX, RamY);
+    loadGraph(graph2,color2,title2,range2,RamX, RamY);
 }
 
 
 
 
 var graph1='CPUgraph';
-var color1='#0079fc';
+var color1='#2563eb';
 var data1='CPU';
 var range1=[0, 100];
 var title1='CPU %';
 
 var graph2='RAMgraph';
-var color2='#27a849';
+var color2='#008e80';
 var data2='RAM';
 var range2=[0, 100];
 var title2='RAM %';

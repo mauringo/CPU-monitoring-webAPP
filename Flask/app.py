@@ -7,6 +7,7 @@ import time
 import subprocess
 import os 
 import sys
+from devices import discover_nvme, discover_npus
 
 
 ##settings 
@@ -192,6 +193,8 @@ def listDevices():
         info['uname']=ListSubprogram(['uname','-a'])
         info['uptime']=ListSubprogram(['uptime'])
         info['cameras']=ListSubprogram(['v4l2-ctl','--list-devices'])
+        info['nvme']=discover_nvme()
+        info['npus']=discover_npus()
         return json.dumps(info)
     except:
         pass
@@ -210,4 +213,5 @@ def lsusb():
 ##server start
 
 if __name__ == '__main__':
-   app.run(host='0.0.0.0',debug = False, port=12121)
+   from waitress import serve
+    serve(app, host='0.0.0.0', port=12121)

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">CPU Monitoring</title>
+  <desc id="desc">A live CPU monitoring mark with a processor and teal activity pulse.</desc>
+  <defs>
+    <linearGradient id="surface" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#1c4f80"/>
+      <stop offset="1" stop-color="#142b46"/>
+    </linearGradient>
+    <linearGradient id="chip" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#f3f6fa"/>
+  <rect x="32" y="32" width="448" height="448" rx="92" fill="url(#surface)"/>
+  <circle cx="256" cy="256" r="158" fill="#ffffff" opacity=".06"/>
+  <g fill="none" stroke="#8fb7df" stroke-linecap="round" stroke-width="16">
+    <path d="M190 142V112M232 142V112M280 142V112M322 142V112"/>
+    <path d="M190 400v-30M232 400v-30M280 400v-30M322 400v-30"/>
+    <path d="M142 190h-30M142 232h-30M142 280h-30M142 322h-30"/>
+    <path d="M400 190h-30M400 232h-30M400 280h-30M400 322h-30"/>
+  </g>
+  <rect x="142" y="142" width="228" height="228" rx="42" fill="url(#chip)"/>
+  <path d="M168 270h42l27-72 42 132 29-70h54" fill="none" stroke="#6ee7b7" stroke-linecap="round" stroke-linejoin="round" stroke-width="20"/>
+  <circle cx="362" cy="270" r="12" fill="#d9fff0"/>
+</svg>

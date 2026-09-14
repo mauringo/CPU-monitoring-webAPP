@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="160" viewBox="0 0 600 160" role="img" aria-labelledby="title desc">
+  <title id="title">CPU Monitoring</title>
+  <desc id="desc">A blue processor with a green activity waveform beside the CPU Monitoring wordmark.</desc>
+  <defs><linearGradient id="chip" x2="1" y2="1"><stop stop-color="#2563eb"/><stop offset="1" stop-color="#123b80"/></linearGradient></defs>
+  <rect x="1" y="1" width="598" height="158" rx="24" fill="#eff6ff" stroke="#dbeafe"/>
+  <g stroke="#6487b6" stroke-width="5" stroke-linecap="round">
+    <path d="M54 38V24m24 14V24m24 14V24M54 122v14m24-14v14m24-14v14M36 56H22m14 24H22m14 24H22m98-48h14m-14 24h14m-14 24h14"/>
+  </g>
+  <rect x="36" y="38" width="84" height="84" rx="16" fill="url(#chip)"/>
+  <path d="M47 83h14l9-22 14 39 10-22h15" fill="none" stroke="#6ee7b7" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="162" y="78" fill="#12305b" font-family="system-ui, sans-serif" font-size="36" font-weight="700">CPU Monitoring</text>
+  <text x="164" y="109" fill="#486581" font-family="system-ui, sans-serif" font-size="17" letter-spacing="2">SYSTEM HEALTH · LIVE</text>
+</svg>

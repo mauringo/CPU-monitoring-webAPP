@@ -1,99 +1,47 @@
-var switchMonitorVal= false;
-
-function switchMonitor(){
-    switchMonitorVal=! switchMonitorVal;
-   
+let devicesLoading = false;
+async function populate2(section = null) {
+    if (devicesLoading) return;
+    devicesLoading = true;
+    const buttons = document.querySelectorAll('[data-refresh]');
+    buttons.forEach(button => { button.disabled = true; });
+    document.getElementById('refresh-status').textContent = 'Refreshing hardware…';
+    const tables = {cameras: 'camerastable', lsusb: 'lsusb', lspci: 'lspci', nvme: 'nvmetable', npus: 'nputable'};
+    try {
+        const response = await fetch('/listDevices');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        document.getElementById('Uname').textContent = 'Uname -a: ' + (data.uname || []).join(' ');
+        document.getElementById('Uptime').textContent = 'Uptime: ' + (data.uptime || []).join(' ');
+        for (const [key, table] of Object.entries(tables)) {
+            if (section && key !== section) continue;
+            updateDeviceTable(data[key], table, 'No devices detected or accessible. Drivers or hardware permissions may be required.');
+            document.getElementById(table + '-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+        }
+        document.getElementById('refresh-status').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    } catch (error) {
+        for (const [key, table] of Object.entries(tables)) {
+            if (section && key !== section) continue;
+            updateDeviceTable([], table, 'Unable to load devices. Try Update Values again.');
+        }
+        document.getElementById('refresh-status').textContent = 'Refresh failed · try again';
+        console.error('Device discovery failed:', error);
+    } finally {
+        devicesLoading = false;
+        buttons.forEach(button => { button.disabled = false; });
+    }
 }
 
-
-function httpGet(theUrl) {   let reqHeader = new Headers();
-    reqHeader.append('Content-Type', 'text/json');
-    let initObject = {
-        method: 'GET', headers: reqHeader,
-    };
-
-    return fetch(theUrl,initObject)
-        .then((response) => { 
-            return response.json().then((data) => {
-                //console.log(data);
-                return data;
-            }).catch((err) => {
-                console.log(err);
-            }) 
-        });
-
+function updateDeviceTable(devices, id, emptyMessage) {
+    const table = document.getElementById(id);
+    const count = Array.isArray(devices) ? devices.length : 0;
+    document.getElementById(id + '-count').textContent = count ? count + (count === 1 ? ' entry' : ' entries') : 'None detected';
+    const body = document.createElement('tbody');
+    const rows = Array.isArray(devices) && devices.length ? devices : [emptyMessage];
+    for (const device of rows) {
+        const cell = body.insertRow().insertCell();
+        cell.textContent = device;
+        if (!count) cell.className = "empty-state";
+    }
+    if (table.tBodies.length) table.tBodies[0].replaceWith(body);
+    else table.appendChild(body);
 }
-
-
-function populate2() {
-var mypromise=(httpGet(location.origin+"/listDevices"));
-mypromise.then((data) => {
-   // console.log(data);
-    
-    document.getElementById('Uname').innerHTML="Uname -a: "+data.uname;
-    document.getElementById('Uptime').innerHTML="UUptime: "+data.uptime;
-    updateTableTemp(data.cameras,"camerastable");
-    updateTableTemp(data.lsusb,"lsusb");
-    updateTableTemp(data.lspci,"lspci");
-    
-  });
-
-}
-
-
-
-   
-      
-function updateTableTemp(data,tablename) {
-
-var rows = []
-var tablecontents;
-
-for (var i = 0; i < data.length; i++) {
-    rows.push({
-    
-    Entry: data[i],
-    
-    })
-    
-}
-
-//console.log(rows);
-var tablecontents = ' <thead>  <tr>    <th data-field="Entry">Devices installed</th>  </tr>  </thead>';
-
-tablecontents += "<tbody>";
-for (var i = 0; i < rows.length; i++) {
-    
-    tablecontents += "<tr>";
-    
-        tablecontents += "<td>" + rows[i].Entry + "</td>";
-      
-        
-    tablecontents += "</tr>";
-    
-}
-tablecontents += "</tbody>";
-document.getElementById(tablename).innerHTML = tablecontents;
-
-
-
-}
-
-
-
-
-function clearTable(tablename) {
-
-
-
-
-var tablecontents = ' <thead>  <tr>    <th data-field="PID">PID</th>   <th data-field="Name">Name</th><th data-field="username">username</th><th data-field="RAM">RAM</th> <th data-field="CPU">CPU</th>     </tr>  </thead>';
-
-document.getElementById(tablename).innerHTML = tablecontents;
-
-
-
-}
-
-
-

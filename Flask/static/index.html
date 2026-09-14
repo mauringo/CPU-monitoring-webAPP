@@ -1,245 +1,66 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    
-    <meta charset="UTF-8">
-    <meta name="author" content="mauringo"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>CPU monitor</title>
-    <!-- Import favicon -->
-    <link rel="icon" href="./assets/icon.png"/>
-    <!-- Import stylesheets -->
-    <link rel="stylesheet" type="text/css" href="./libs/bootstrap-4.4.1-dist/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
-    <link rel="stylesheet" type="text/css" href="./css/style.css"/>
-    <!-- Import library scripts -->
-    <script src="./libs/jquery-3.4.1.min.js"></script>
-
-    <script src="./libs/popper.min.js"></script>
-    <script src="./libs/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
-    <script src="./js/script.js"></script>
-    <script src="./js/utils.js"></script>
-    <script src="./js/plotly-2.3.1.min.js"></script>
-    <link href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css" rel="stylesheet">
-
-    
-  </head>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-
-    <a class="navbar-brand" href="#">Cpu Monitoring</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarText">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/systemdevices">System Devices</a>
-        </li>
-        
-    </div>
-  </nav>
-  <body onload="populate()">
-     
-    <div class="container-fluid ">
-      <div class="row vertical-spacing ">
-        <div class="col-sm"></div>
-        <div class="col-sm-center">
-          <img class="rounded mx-auto responsive img-responsive" style="height:8em" src="./assets/Logo.png"/>
-       
-        </div>
-        <div class="col-sm"></div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>System overview · CPU Monitoring</title>
+  <link rel="icon" href="./assets/app-icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./libs/bootstrap-5.3.8-dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <script defer src="./libs/jquery-3.4.1.min.js"></script>
+  <script defer src="./libs/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
+  <script defer src="./js/plotly-2.3.1.min.js"></script><script defer src="./js/utils.js"></script><script defer src="./js/script.js"></script>
+</head>
+<body onload="populate()">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="topbar">
+    <nav class="navbar navbar-expand-md container" aria-label="Main navigation">
+      <a class="navbar-brand" href="/"><img src="./assets/cpu-monitor.svg" alt="CPU Monitoring" width="240" height="64"></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navigation">
+        <ul class="navbar-nav ms-auto gap-2">
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Overview</a></li>
+          <li class="nav-item"><a class="nav-link "  href="/systemdevices">Devices</a></li>
+        </ul>
       </div>
+    </nav>
+  </header>
+  <main id="main" class="container dashboard">
+    <section class="hero" aria-labelledby="page-title">
+      <div><p class="eyebrow">YOUR SYSTEM, AT A GLANCE</p><h1 id="page-title">System overview</h1><p class="hero-description">A clear view of your system, in real time.</p></div>
+      <div class="hero-status"><span class="status-dot"></span><span id="refresh-status" role="status">Waiting for first reading</span></div>
+    </section>
+    <div class="section-heading"><h2>Live performance</h2><button class="btn btn-outline-primary btn-sm" type="button" onclick="download_csv()">↓ Export CSV</button></div>
+    <div class="performance-grid">
+      <section class="panel metric-card " aria-labelledby="CPUlabel">
+        <div class="metric-heading"><div><p class="eyebrow">Processor utilization</p><h3 id="CPUlabel">CPU load</h3></div><span class="metric-icon" aria-hidden="true">01</span></div>
+        <div class="metric-value" id="cpu-value">—<span>%</span></div>
+        <div class="progress"><div class="progress-bar" id="cpu" role="progressbar" aria-labelledby="CPUlabel" style="width:0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div>
+        <div id="CPUgraph" class="usage-chart" aria-label="CPU load history"></div>
+        <p class="chart-caption">Usage over time <span>Updated every 3 seconds</span></p>
+      </section>
+      <section class="panel metric-card memory" aria-labelledby="RAMlabel">
+        <div class="metric-heading"><div><p class="eyebrow">RAM utilization</p><h3 id="RAMlabel">Memory usage</h3></div><span class="metric-icon" aria-hidden="true">02</span></div>
+        <div class="metric-value" id="RAM-value">—<span>%</span></div>
+        <div class="progress"><div class="progress-bar" id="RAM" role="progressbar" aria-labelledby="RAMlabel" style="width:0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div>
+        <div id="RAMgraph" class="usage-chart" aria-label="Memory usage history"></div>
+        <p class="chart-caption">Usage over time <span>Updated every 3 seconds</span></p>
+      </section>
     </div>
-    
-   
-    <div class="container-fluid vertical-spacing ">
-      <div class="row">
-        <div class="col-2"></div>
-        <div class="col-8">
-          
-          <h3>System Info</h3>
-          <span class="badge badge-primary"id="CPUReal">Physical Cores Number: </span>
-          <span class="badge badge-primary"id="CPUVirtual">Virtual Cores Number: </span>
-          <span class="badge badge-secondary"id="RAMinstalled">RAM installed: </span>
-          <span class="badge badge-success"id="Architecture">Architecture: </span>
-          <span class="badge badge-success"id="Kernel">Kernel Version: </span>
-          <span class="badge badge-warning" id="Platform" >Platform Version: </span>
-          <span class="badge badge-warning" id="Processor" >Processor: </span>
-          
-          
-          
-       
-        </div>
-        <div class="col-2">
-          
-          
-       
-        </div>
-      </div>
-    </div>
-
-   
-    <div class="container-fluid ">
-      <div class="row vertical-spacing ">
-        <div class="col-2"></div>
-        <div class="col-8">
-          <h3>System Monitor</h3>
-          <label for="cpu"id="CPUlabel">Cpu Load % :</label>
-          <div class="progress vertical-spacing">
-            
-            <div class="progress-bar progress-bar-striped progress-bar-animated" id="cpu" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-          <label for="RAM"id="RAMlabel" >RAM usage % :</label>
-          <div class="progress vertical-spacing">
-            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" id="RAM" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-         
-      
-        
-        </div>
-        <div class="col-2"></div>
-      </div>
-    </div>
-
-    <div class="container-fluid ">
-      <div class="row vertical-spacing ">
-        <div class="col-sm-2"></div>
-        <div class="col-sm-4">
-          <div  id="CPUgraph">
-            <!-- Append graph here -->
-          </div>
-       
-        </div>
-        <div class="col-sm-4">
-          
-          <div  id="RAMgraph">
-            <!-- Append graph here -->
-          </div>
-       
-        </div>
-        <div class="col-sm-2"></div>
-      </div>
-    </div>
-
-   <div class="container my-3 bg-light">
-      <div class="col-md-12 text-center">
-          <button type="button" class="btn btn-primary" onclick="download_csv()">Download CSV</button> 
-      </div>
-  </div>
-  <div class="container-fluid ">
-    <div class="row vertical-spacing ">
-      <div class="col-sm-2"></div>
-      <div class="col-sm-8">    
-          <h5>Temperature: </h5>
-          <table id="temperature" class="table">
-            <thead>
-              <tr>
-                  <th data-field="PID">Device</th>
-                  <th data-field="temperature">Temperature</th>
-                  <th data-field="high">high</th>
-                  <th data-field="critical">critical</th>
-              </tr>
-          </thead>
-        </table>       
-      </div>
-      <div class="col-sm-2"></div>
-    </div>
-  </div>
-
-  <div class="container my-3 bg-light vertical-spacing">
-    <div class="col-md-12 text-center">
-        <button type="button" class="btn btn-primary" onclick="switchMonitor()">Activate/Deactivate Task Monitor</button> 
-    </div>
-</div>
-   
-  <div class="container-fluid ">
-    <div class="row vertical-spacing ">
-      <div class="col-sm-2">
-        
-      </div>
-      <div class="col-sm-4">
-        <h5>Processes: RAM utilization  </h5>
-        <table id="ramtable" class="table">
-          <thead>
-             <tr>
-                <th data-field="PID">PID</th>
-                <th data-field="Name">Name</th>
-                <th data-field="username">username</th>
-                <th data-field="RAM">RAM</th>
-                <th data-field="CPU">CPU</th>
-             </tr>
-         </thead>
-      </table>
-     
-      </div>
-      <div class="col-sm-4">
-        <h5>Processes: CPU utilization</h5>
-        <table id="cputable" class="table">
-          <thead>
-             <tr>
-                <th data-field="PID">PID</th>
-                <th data-field="Name">Name</th>
-                <th data-field="username">username</th>
-                <th data-field="RAM">RAM</th>
-                <th data-field="CPU">CPU</th>
-             </tr>
-         </thead>
-      </table>
-     
-      </div>
-      <div class="col-sm-2"></div>
-    </div>
-  </div>
-  <div class="container my-3 bg-light vertical-spacing">
-    <div class="col-md-12 text-center">
-      <h3>Bored? Play a Game!</h3>
-    </div>
-</div>
-<div class="container my-3 bg-light vertical-spacing">
-  <div class="col-md-12 text-center">
-     
-        
-        <a class="btn btn-success" href="./games/snake/index.html" target="_blank">Snake</a>
-        <a class="btn btn-danger" href="./games/gba/index.html" target="_blank">Game Boy Advance</a>
-        <a class="btn btn-primary" href="./games/spaceinvaders/index.html" target="_blank">Space Invaders</a>
-        
-     
-     
-     
-      
-    </div>
-  </div>
-  <div class="container my-3 bg-light vertical-spacing">
-    <div class="col-md-12 text-center">
-      <h3>Doyou Like this app? consider a Bitcoin donation!</h3>
-      <h3>bc1qpph2u3kl3runht2jv4mkql09g8lpetfzaexnsd</h3>
-    </div>
-</div>
-  <div class="container-fluid ">
-    <div class="row vertical-spacing ">
-      <div class="col-sm"></div>
-      <div class="col-sm-center">
-        <img class="rounded mx-auto responsive img-responsive" style="height:8em" src="./assets/donate.png"/>
-     
-      </div>
-      <div class="col-sm"></div>
-    </div>
-  </div>
-  </body>
-  <!-- Site footer -->
- <!-- Footer -->
-<footer class="page-footer font-small blue">
-
-  <!-- Copyright -->
-  <div class="footer-copyright text-center py-3 vertical-double-spacing">2020 - 
-    <a href="https://github.com/mauringo/CPU-monitoring-webAPP"> GitHub</a>
-  </div>
-  <!-- Copyright -->
-
-</footer>
-
+    <section class="panel system-panel" aria-labelledby="system-title"><div class="panel-heading"><div><p class="eyebrow">THE ESSENTIALS</p><h2 id="system-title">System information</h2></div><a class="text-link" href="/systemdevices">Explore devices →</a></div><dl class="system-grid">
+<div><dt>Physical cores</dt><dd id="CPUReal">—</dd></div>
+<div><dt>Logical cores</dt><dd id="CPUVirtual">—</dd></div>
+<div><dt>Installed memory</dt><dd id="RAMinstalled">—</dd></div>
+<div><dt>Architecture</dt><dd id="Architecture">—</dd></div>
+<div><dt>Kernel</dt><dd id="Kernel">—</dd></div>
+<div><dt>Platform</dt><dd id="Platform">—</dd></div>
+<div><dt>Processor</dt><dd id="Processor">—</dd></div>
+    </dl></section>
+    <section class="panel" aria-labelledby="temperature-title"><div class="panel-heading"><div><p class="eyebrow">THERMAL HEALTH</p><h2 id="temperature-title">Temperature sensors</h2></div><span class="section-tag">°C</span></div><div class="table-responsive sensor-table"><table id="temperature" class="table"><thead><tr><th>Device</th><th>Temperature</th><th>High</th><th>Critical</th></tr></thead><tbody><tr><td colspan="4" class="empty-state">Waiting for sensor readings…</td></tr></tbody></table></div></section>
+    <div class="section-heading"><div><h2>Process activity</h2><p>See which tasks are using the most resources.</p></div><button id="task-toggle" class="btn btn-outline-primary" aria-pressed="false" type="button" onclick="switchMonitor()">Enable task monitor</button></div>
+    <div class="performance-grid">
+<section class="panel"><div class="panel-heading"><h3>Top memory usage</h3></div><div class="table-responsive"><table class="table" id="ramtable"><thead><tr><th>PID</th><th>Name</th><th>User</th><th>RAM</th><th>CPU</th></tr></thead><tbody><tr><td colspan="5" class="empty-state">Enable the task monitor to view processes.</td></tr></tbody></table></div></section><section class="panel"><div class="panel-heading"><h3>Top CPU usage</h3></div><div class="table-responsive"><table class="table" id="cputable"><thead><tr><th>PID</th><th>Name</th><th>User</th><th>RAM</th><th>CPU</th></tr></thead><tbody><tr><td colspan="5" class="empty-state">Enable the task monitor to view processes.</td></tr></tbody></table></div></section></div>    <aside class="break-panel"><div><h2>Time for a little break?</h2><p>Your next high score is waiting.</p></div><div class="game-links"><a href="./games/snake/index.html" target="_blank" rel="noopener">Snake ↗</a><a href="./games/gba/index.html" target="_blank" rel="noopener">Game Boy Advance ↗</a><a href="./games/spaceinvaders/index.html" target="_blank" rel="noopener">Space Invaders ↗</a></div></aside>
+  </main>
+  <footer class="container site-footer"><span>CPU Monitoring <span aria-hidden="true">/</span> A closer look at your machine.</span><a href="https://github.com/mauringo/CPU-monitoring-webAPP">View on GitHub ↗</a></footer>
+</body>
 </html>
-
-<

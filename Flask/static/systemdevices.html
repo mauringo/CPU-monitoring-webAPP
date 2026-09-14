@@ -1,202 +1,69 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    
-    <meta charset="UTF-8">
-    <meta name="author" content="mauringo"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>CPU monitor</title>
-    <!-- Import favicon -->
-    <link rel="icon" href="./assets/icon.png"/>
-    <!-- Import stylesheets -->
-    <link rel="stylesheet" type="text/css" href="./libs/bootstrap-4.4.1-dist/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
-    <link rel="stylesheet" type="text/css" href="./css/style.css"/>
-    <!-- Import library scripts -->
-    <script src="./libs/jquery-3.4.1.min.js"></script>
-
-    <script src="./libs/popper.min.js"></script>
-    <script src="./libs/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
-    <script src="./js/devices.js"></script>
-    <script src="./js/utils.js"></script>
-    <script src="./js/plotly-2.3.1.min.js"></script>
-    <link href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css" rel="stylesheet">
-
-    
-  </head>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-
-    <a class="navbar-brand" href="#">Cpu Monitoring</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarText">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item ">
-          <a class="nav-link" href="/">Home</a>
-        </li>
-        <li class="nav-item active">
-          <a class="nav-link" href="/systemdevices">System Devices<span class="sr-only">(current)</span></a>
-        </li>
-        
-    </div>
-  </nav>
-  <body onload="populate2()">
-     
-    <div class="container-fluid ">
-      <div class="row vertical-spacing ">
-        <div class="col-sm"></div>
-        <div class="col-sm-center">
-          <img class="rounded mx-auto responsive img-responsive" style="height:8em" src="./assets/Logo.png"/>
-       
-        </div>
-        <div class="col-sm"></div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Device inventory · CPU Monitoring</title>
+  <link rel="icon" href="./assets/icon.png">
+  <link rel="stylesheet" href="./libs/bootstrap-5.3.8-dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <script defer src="./libs/jquery-3.4.1.min.js"></script>
+  <script defer src="./libs/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
+  <script defer src="./js/devices.js"></script>
+</head>
+<body onload="populate2()">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="topbar">
+    <nav class="navbar navbar-expand-md container" aria-label="Main navigation">
+      <a class="navbar-brand" href="/"><img src="./assets/cpu-monitor.svg" alt="CPU Monitoring" width="240" height="64"></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navigation">
+        <ul class="navbar-nav ms-auto gap-2">
+          <li class="nav-item"><a class="nav-link "  href="/">Overview</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/systemdevices">Devices</a></li>
+        </ul>
       </div>
-    </div>
-    
-   
-    <div class="container-fluid vertical-spacing ">
-      <div class="row">
-        <div class="col-2"></div>
-        <div class="col-8">
-          
-          <h3>System Additional Info and Installed devices</h3>
-          <span class="badge badge-primary"id="Uname">Uname -a: </span>
-          <span class="badge badge-success"id="Uptime">Uptime: </span>
-          
-          
-          
-          
-       
-        </div>
-        <div class="col-2">
-          
-          
-       
-        </div>
-      </div>
-    </div>
-    
-
-    <div class="container my-3 bg-light vertical-spacing">
-      <div class="col-md-12 text-center">
-          <button type="button" class="btn btn-primary" onclick="populate2()">Update Values</button> 
-      </div>
-  </div>
-   
-    <div class="container-fluid ">
-      <div class="row vertical-spacing ">
-        <div class="col-sm-2">
-          
-        </div>
-        <div class="col-sm-8">
-          <h5>Cameras: </h5>
-          <table id="camerastable" class="table">
-            <thead>
-               <tr>
-                  <th data-field="PID">List Of Installed cameras</th>
-                
-               </tr>
-           </thead>
-        </table>
-       
-        </div>
-        
-        <div class="col-sm-2"></div>
-      </div>
-    </div>
-
-
-    <div class="container my-3 bg-light vertical-spacing">
-      <div class="col-md-12 text-center">
-          <button type="button" class="btn btn-primary" onclick="populate2()">Update Values</button> 
-      </div>
-  </div>
-   
-    <div class="container-fluid ">
-      <div class="row vertical-spacing ">
-        <div class="col-sm-2">
-          
-        </div>
-      
-        <div class="col-sm-8">
-          <h5>List of USB devices</h5>
-          <table id="lsusb" class="table">
-            <thead>
-               <tr>
-                  <th data-field="PID">List of installed USB</th>
-              
-               </tr>
-           </thead>
-        </table>
-       
-        </div>
-        <div class="col-sm-2"></div>
-      </div>
-    </div>
-
-
-    <div class="container my-3 bg-light vertical-spacing">
-      <div class="col-md-12 text-center">
-          <button type="button" class="btn btn-primary" onclick="populate2()">Update Values</button> 
-      </div>
-  </div>
-   
-    <div class="container-fluid ">
-      <div class="row vertical-spacing ">
-        <div class="col-sm-2">
-          
-        </div>
-      
-        <div class="col-sm-8">
-          <h5>List of PCI devices</h5>
-          <table id="lspci" class="table">
-            <thead>
-               <tr>
-                  <th data-field="PID">List of installed PCI</th>
-              
-               </tr>
-           </thead>
-        </table>
-       
-        </div>
-        <div class="col-sm-2"></div>
-      </div>
-    </div>
-    
-
-  <div class="container my-3 bg-light vertical-spacing">
-    <div class="col-md-12 text-center">
-      <h3>Bored? Play a Game!</h3>
-    </div>
-</div>
-<div class="container my-3 bg-light vertical-spacing">
-  <div class="col-md-12 text-center">
-     
-        
-        <a class="btn btn-success" href="./games/snake/index.html" target="_blank">Snake</a>
-        <a class="btn btn-danger" href="./games/gba/index.html" target="_blank">Game Boy Advance</a>
-        <a class="btn btn-primary" href="./games/spaceinvaders/index.html" target="_blank">Space Invaders</a>
-        
-     
-     
-     
-      
-    </div>
-  </div>
-
-  </body>
-  <!-- Site footer -->
- <!-- Footer -->
-<footer class="page-footer font-small blue">
-
-  <!-- Copyright -->
-  <div class="footer-copyright text-center py-3 vertical-double-spacing">2020 - 
-    <a href="https://github.com/mauringo/CPU-monitoring-webAPP"> GitHub</a>
-  </div>
-  <!-- Copyright -->
-
-</footer>
-
+    </nav>
+  </header>
+  <main id="main" class="container dashboard">
+    <section class="hero" aria-labelledby="page-title">
+      <div><p class="eyebrow">YOUR SYSTEM, AT A GLANCE</p><h1 id="page-title">Device inventory</h1><p class="hero-description">Explore the hardware that powers your system.</p></div>
+      <div class="hero-status"><span class="status-dot"></span><span id="refresh-status" role="status">Ready to scan hardware</span></div>
+    </section>
+    <section class="panel host-summary" aria-label="Host information"><div><p class="eyebrow">HOST SYSTEM</p><p id="Uname">Waiting for system information…</p><p id="Uptime" class="muted">Waiting for uptime…</p></div><button class="btn btn-primary" type="button" onclick="populate2()" data-refresh>↻ Update all devices</button></section>
+    <div class="device-grid">
+      <section class="panel device-card" aria-labelledby="nvmetable-title">
+        <div class="device-intro"><span class="device-icon" aria-hidden="true">SSD</span><span class="device-count" id="nvmetable-count">—</span></div>
+        <div class="panel-heading"><div><h2 id="nvmetable-title">NVMe storage</h2><p>Controllers, namespaces and available capacity.</p></div></div>
+        <div class="table-responsive"><table class="table" id="nvmetable"><thead><tr><th>Detected hardware</th></tr></thead><tbody><tr><td class="empty-state">Waiting for hardware scan…</td></tr></tbody></table></div>
+        <div class="device-actions"><span id="nvmetable-updated" class="muted">Not updated yet</span><button class="btn btn-outline-primary btn-sm" type="button" onclick="populate2('nvme')" data-refresh aria-label="Update values for NVMe storage">↻ Update Values</button></div>
+      </section>
+      <section class="panel device-card" aria-labelledby="nputable-title">
+        <div class="device-intro"><span class="device-icon" aria-hidden="true">AI</span><span class="device-count" id="nputable-count">—</span></div>
+        <div class="panel-heading"><div><h2 id="nputable-title">NPUs & AI accelerators</h2><p>Neural processing and compute acceleration.</p></div></div>
+        <div class="table-responsive"><table class="table" id="nputable"><thead><tr><th>Detected hardware</th></tr></thead><tbody><tr><td class="empty-state">Waiting for hardware scan…</td></tr></tbody></table></div>
+        <div class="device-actions"><span id="nputable-updated" class="muted">Not updated yet</span><button class="btn btn-outline-primary btn-sm" type="button" onclick="populate2('npus')" data-refresh aria-label="Update values for NPUs & AI accelerators">↻ Update Values</button></div>
+      </section>
+      <section class="panel device-card" aria-labelledby="camerastable-title">
+        <div class="device-intro"><span class="device-icon" aria-hidden="true">CAM</span><span class="device-count" id="camerastable-count">—</span></div>
+        <div class="panel-heading"><div><h2 id="camerastable-title">Cameras</h2><p>Video capture devices connected to your system.</p></div></div>
+        <div class="table-responsive"><table class="table" id="camerastable"><thead><tr><th>Detected hardware</th></tr></thead><tbody><tr><td class="empty-state">Waiting for hardware scan…</td></tr></tbody></table></div>
+        <div class="device-actions"><span id="camerastable-updated" class="muted">Not updated yet</span><button class="btn btn-outline-primary btn-sm" type="button" onclick="populate2('cameras')" data-refresh aria-label="Update values for Cameras">↻ Update Values</button></div>
+      </section>
+      <section class="panel device-card" aria-labelledby="lsusb-title">
+        <div class="device-intro"><span class="device-icon" aria-hidden="true">USB</span><span class="device-count" id="lsusb-count">—</span></div>
+        <div class="panel-heading"><div><h2 id="lsusb-title">USB devices</h2><p>Peripherals and USB-connected hardware.</p></div></div>
+        <div class="table-responsive"><table class="table" id="lsusb"><thead><tr><th>Detected hardware</th></tr></thead><tbody><tr><td class="empty-state">Waiting for hardware scan…</td></tr></tbody></table></div>
+        <div class="device-actions"><span id="lsusb-updated" class="muted">Not updated yet</span><button class="btn btn-outline-primary btn-sm" type="button" onclick="populate2('lsusb')" data-refresh aria-label="Update values for USB devices">↻ Update Values</button></div>
+      </section>
+      <section class="panel device-card" aria-labelledby="lspci-title">
+        <div class="device-intro"><span class="device-icon" aria-hidden="true">PCI</span><span class="device-count" id="lspci-count">—</span></div>
+        <div class="panel-heading"><div><h2 id="lspci-title">PCI devices</h2><p>Expansion hardware and integrated controllers.</p></div></div>
+        <div class="table-responsive"><table class="table" id="lspci"><thead><tr><th>Detected hardware</th></tr></thead><tbody><tr><td class="empty-state">Waiting for hardware scan…</td></tr></tbody></table></div>
+        <div class="device-actions"><span id="lspci-updated" class="muted">Not updated yet</span><button class="btn btn-outline-primary btn-sm" type="button" onclick="populate2('lspci')" data-refresh aria-label="Update values for PCI devices">↻ Update Values</button></div>
+      </section>
+</div>    <aside class="break-panel"><div><h2>Time for a little break?</h2><p>Your next high score is waiting.</p></div><div class="game-links"><a href="./games/snake/index.html" target="_blank" rel="noopener">Snake ↗</a><a href="./games/gba/index.html" target="_blank" rel="noopener">Game Boy Advance ↗</a><a href="./games/spaceinvaders/index.html" target="_blank" rel="noopener">Space Invaders ↗</a></div></aside>
+  </main>
+  <footer class="container site-footer"><span>CPU Monitoring <span aria-hidden="true">/</span> A closer look at your machine.</span><a href="https://github.com/mauringo/CPU-monitoring-webAPP">View on GitHub ↗</a></footer>
+</body>
 </html>
-
-<
