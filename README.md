@@ -145,7 +145,7 @@ in dependency order: **FastRPC → libqcnpuperf → nvtop 3.3.2**. It replaces t
 prebuilt distribution nvtop package. The Snap uses its bundled libraries;
 separate host installations of these userspace components are not required.
 NVIDIA, AMD, Intel and MSM/Adreno GPU backends remain enabled. Other target
-architectures build nvtop without the ARM64 Qualcomm NPU libraries.
+architectures use the distribution nvtop package without the ARM64 Qualcomm NPU libraries.
 
 The newly compiled stack was verified on an ARM64 machine with a
 **Qualcomm Hexagon v68 NPU** and **FD643 GPU**. Hardware checks confirmed NPU
@@ -175,8 +175,9 @@ does not automatically grant FastRPC access; the board's device policy must
 permit the required FastRPC nodes and runtime paths.
 
 
-The Snap compiles nvtop from source, with FastRPC and libqcnpuperf built first
-on ARM64 for Qualcomm Adreno GPU and Hexagon NPU monitoring. See the
+The ARM64 Snap compiles nvtop from source, with FastRPC and libqcnpuperf built
+first for Qualcomm Adreno GPU and Hexagon NPU monitoring. Other architectures
+use the distribution nvtop package. See the
 [source-build notes](docs/qualcomm-snap-build.md) for pinned revisions and
 host device-access requirements.
 
@@ -392,8 +393,9 @@ view; the chart pause button controls only dashboard charts.
 
 For source installations, install `nvtop` on the monitored host and ensure it
 is on the service's PATH. The Snap supplies its own nvtop binary.
-Snap builds compile a pinned nvtop revision from source. ARM64 builds also
-compile FastRPC and libqcnpuperf for Qualcomm Hexagon NPU monitoring.
+ARM64 Snap builds compile a pinned nvtop revision from source, along with
+FastRPC and libqcnpuperf for Qualcomm Hexagon NPU monitoring. Other architectures
+use the distribution nvtop package.
 Rebuild/reinstall the Snap to include these changes. The native service account must be able to access the GPU/accelerator
 and allocate a PTY. Strict Snap confinement may additionally restrict PTYs or
 hardware; the page reports launch failures instead of elevating privileges.

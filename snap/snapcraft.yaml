@@ -137,16 +137,22 @@ parts:
     source: https://github.com/Syllo/nvtop.git
     source-commit: 55896ac28e40f033af70b7bfbd8bf79b31522d8d
     build-packages: [cmake, build-essential, pkg-config, libncurses-dev, libdrm-dev, libudev-dev]
-    stage-packages: [libncursesw6, libtinfo6, libdrm2, libudev1, ncurses-term]
+    stage-packages:
+      - on arm64:
+          - libncursesw6
+          - libtinfo6
+          - libdrm2
+          - libudev1
+          - ncurses-term
+        else:
+          - nvtop
+          - ncurses-term
     override-build: |
       set -eu
+      [ "$CRAFT_ARCH_BUILD_FOR" = arm64 ] || exit 0
       export PKG_CONFIG_PATH="$CRAFT_STAGE/usr/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
-      qcom_required=OFF
-      if [ "$CRAFT_ARCH_BUILD_FOR" = arm64 ]; then
-        qcom_required=ON
-        # Require our freshly built library, not a host-installed copy.
-        PKG_CONFIG_SYSROOT_DIR="$CRAFT_STAGE" pkg-config --exists qcnpuperf
-      fi
+      # Require our freshly built library, not a host-installed copy.
+      PKG_CONFIG_SYSROOT_DIR="$CRAFT_STAGE" pkg-config --exists qcnpuperf
       cmake -S "$CRAFT_PART_SRC" -B "$CRAFT_PART_BUILD" \
         -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
         -DNVIDIA_SUPPORT=ON -DAMDGPU_SUPPORT=ON -DINTEL_SUPPORT=ON \
@@ -154,10 +160,8 @@ parts:
         -DCMAKE_C_FLAGS="-I$CRAFT_STAGE/usr/include" \
         -DCMAKE_EXE_LINKER_FLAGS="-L$CRAFT_STAGE/usr/lib -Wl,-rpath-link,$CRAFT_STAGE/usr/lib" \
         -DCMAKE_INSTALL_RPATH='${ORIGIN}/../lib'
-      if [ "$qcom_required" = ON ]; then
-        grep -q '^NPUPERF_FOUND:INTERNAL=1$' "$CRAFT_PART_BUILD/CMakeCache.txt"
-        grep -q 'extract_npuinfo_qualcomm.c' "$CRAFT_PART_BUILD/src/CMakeFiles/nvtop.dir/build.make"
-      fi
+      grep -q '^NPUPERF_FOUND:INTERNAL=1$' "$CRAFT_PART_BUILD/CMakeCache.txt"
+      grep -q 'extract_npuinfo_qualcomm.c' "$CRAFT_PART_BUILD/src/CMakeFiles/nvtop.dir/build.make"
       cmake --build "$CRAFT_PART_BUILD" -j"$CRAFT_PARALLEL_BUILD_COUNT"
       DESTDIR="$CRAFT_PART_INSTALL" cmake --install "$CRAFT_PART_BUILD"
       install -Dm644 "$CRAFT_PART_SRC/COPYING" "$CRAFT_PART_INSTALL/usr/share/licenses/nvtop/COPYING"

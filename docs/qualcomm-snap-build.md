@@ -1,6 +1,6 @@
 # Source-built nvtop and Qualcomm NPU support
 
-Snap version 2.0.3 builds these upstream revisions in dependency order:
+The ARM64 Snap builds these upstream revisions in dependency order:
 
 | Component | Source | Revision |
 | --- | --- | --- |
@@ -8,16 +8,16 @@ Snap version 2.0.3 builds these upstream revisions in dependency order:
 | libqcnpuperf | https://github.com/qualcomm/libqcnpuperf | `34261de1e689d0e718205e4ba8aae82108fd7881` |
 | nvtop | https://github.com/Syllo/nvtop | `55896ac28e40f033af70b7bfbd8bf79b31522d8d` |
 
-The Qualcomm userspace libraries are built for ARM64. Other architectures build
-nvtop without the Qualcomm NPU library. NVIDIA, AMD, Intel and MSM/Adreno GPU
-backends are enabled. Device discovery uses the bundled libudev consistently. Backend availability still depends on host hardware.
+The Qualcomm userspace libraries and custom nvtop are built only for ARM64.
+Other architectures use the distribution nvtop package. The custom ARM64 build
+enables NVIDIA, AMD, Intel and MSM/Adreno GPU backends. Device discovery uses the bundled libudev consistently. Backend availability still depends on host hardware.
 The ARM64 build fails if pkg-config cannot find libqcnpuperf or nvtop's generated
 build rules omit `extract_npuinfo_qualcomm.c`.
 
 FastRPC is built with autotools. libqcnpuperf is built with CMake and its optional
 sample CLI disabled. Its pkg-config paths are corrected for staged installation.
 nvtop is compiled last, against those staged headers and libraries. The distro
-nvtop package is no longer staged. Upstream license notices ship under
+nvtop package is staged only on non-ARM64 architectures. Upstream license notices ship under
 `usr/share/licenses` in the Snap.
 
 Build in an isolated Ubuntu 26.04 environment:
