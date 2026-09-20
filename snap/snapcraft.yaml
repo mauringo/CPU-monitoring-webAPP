@@ -1,5 +1,5 @@
 name: cpu-monitoring-webapp
-version: '2.0.3'
+version: '2.0.4'
 platforms:
   amd64:
   arm64:
@@ -19,6 +19,11 @@ description: |
   Monitor Linux CPU, GPU, NPU and RAM usage from a self-hosted web dashboard.
   CPU Monitoring combines system performance charts, hardware inventory and
   a live nvtop terminal for graphics and AI accelerator monitoring.
+
+  Designed for lightweight ARM64 monitoring on RUBIK Pi and Raspberry Pi 5,
+  with bounded chart history, shared accelerator samples and adjustable
+  refresh intervals. Verified on RUBIK Pi 3; Raspberry Pi 5 hardware validation
+  is pending. Qualcomm NPU features require compatible Qualcomm hardware.
 
   GPU and NPU monitoring:
   - View GPU utilization history, video memory (VRAM), temperature and power

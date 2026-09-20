@@ -12,6 +12,62 @@ Open `http://localhost:12121` for the system overview, or
 charts and the embedded nvtop terminal. To monitor another machine on your
 trusted network, replace `localhost` with its IP address.
 
+## RUBIK Pi and Raspberry Pi 5
+
+Optimized for lightweight ARM64 single-board-computer monitoring, with
+**RUBIK Pi** and **Raspberry Pi 5** as target boards: browser access, bounded
+chart history, shared accelerator samples and adjustable refresh intervals.
+The same dashboard covers CPU, RAM, storage, networking, sensors and hardware
+inventory, alongside GPU/NPU monitoring where supported.
+
+The app and Qualcomm GPU/NPU stack have been verified on **RUBIK Pi 3**.
+**Raspberry Pi 5** is an additional ARM64 Linux target; hardware validation on
+that board is still pending. GPU readings depend on its installed driver and
+nvtop backend. The bundled Qualcomm FastRPC/Hexagon integration applies to
+Qualcomm hardware, not Raspberry Pi 5.
+
+## Screenshots
+
+Explore the whole app below: system performance, hardware inventory and live
+GPU/NPU monitoring. These are real readings from **RUBIK Pi 3**, captured in
+the app's light and dark themes. Click any screenshot to open the full-size image.
+
+### System overview
+
+Follow CPU and RAM history, inspect per-core activity, and check network
+traffic, storage and temperatures from one dashboard. Adjustable refresh
+intervals let you balance detail with monitoring overhead on your board.
+
+[![System overview in dark theme showing CPU and RAM charts, per-core activity, networking, storage and sensors](docs/screenshots/overview-dark.png)](docs/screenshots/overview-dark.png)
+
+[View the light theme](docs/screenshots/overview-light.png)
+
+### Hardware and devices
+
+Explore the board's hardware inventory, including NVMe storage, detected
+accelerators, USB and PCI devices, and cameras. Device details help you see
+what the operating system detects and which interfaces are available.
+
+[![Hardware inventory in light theme showing storage, accelerator discovery, USB, PCI and camera sections](docs/screenshots/devices-light.png)](docs/screenshots/devices-light.png)
+
+[View the dark theme](docs/screenshots/devices-dark.png)
+
+### GPU and NPU monitoring
+
+Watch the real nvtop terminal directly in the browser, alongside accelerator
+metrics and history. This capture shows the Qualcomm GPU and Hexagon NPU on
+RUBIK Pi 3. The embedded terminal follows the dashboard theme, and the page
+includes guidance for Qualcomm NPU access under Snap confinement.
+
+[![GPU and NPU dashboard in dark theme with live Qualcomm nvtop telemetry, accelerator charts and the NPU permission notice](docs/screenshots/gpu-npu-dark.png)](docs/screenshots/gpu-npu-dark.png)
+
+[View the light theme](docs/screenshots/gpu-npu-light.png)
+
+All six screenshots are stored in [`docs/screenshots`](docs/screenshots/README.md).
+See the [capture notes and regeneration instructions](docs/screenshots/README.md)
+for details. The Qualcomm NPU capture uses a Snap installed in devmode;
+these images do not represent Raspberry Pi 5 hardware validation.
+
 ## Features
 
 - **Linux GPU monitoring:** utilization history, VRAM usage, temperature and
@@ -82,6 +138,43 @@ python -m unittest discover -s tests -v
 
 ## Build a Snap
 
+### Qualcomm GPU and NPU support in version 2.0.3
+
+The ARM64 Snap compiles and bundles the Qualcomm monitoring stack from source
+in dependency order: **FastRPC → libqcnpuperf → nvtop 3.3.2**. It replaces the
+prebuilt distribution nvtop package. The Snap uses its bundled libraries;
+separate host installations of these userspace components are not required.
+NVIDIA, AMD, Intel and MSM/Adreno GPU backends remain enabled. Other target
+architectures build nvtop without the ARM64 Qualcomm NPU libraries.
+
+The newly compiled stack was verified on an ARM64 machine with a
+**Qualcomm Hexagon v68 NPU** and **FD643 GPU**. Hardware checks confirmed NPU
+clock, utilization and temperature readings, plus GPU activity. Available
+metrics depend on the device and driver; other Qualcomm platforms have not
+been validated here.
+
+Open `http://localhost:12121/accelerators` to see the live, read-only nvtop
+terminal. Its colors follow the dashboard's light, dark or system theme.
+Qualcomm NPU activity appears in the terminal; the separate native dashboard
+charts use different collectors and may expose fewer readings.
+
+Build the ARM64 package from the repository root:
+
+```sh
+snapcraft pack --use-lxd --platform arm64
+```
+
+The recipe is `snap/snapcraft.yaml`. See the
+[source-build notes](docs/qualcomm-snap-build.md) for pinned upstream revisions,
+build checks and runtime requirements.
+
+The host still needs its Qualcomm FastRPC kernel driver, DSP firmware and
+accessible `/dev/fastrpc-*` devices. These userspace builds do not install kernel
+modules or firmware. Under strict Snap confinement, GPU access through `opengl`
+does not automatically grant FastRPC access; the board's device policy must
+permit the required FastRPC nodes and runtime paths.
+
+
 The Snap compiles nvtop from source, with FastRPC and libqcnpuperf built first
 on ARM64 for Qualcomm Adreno GPU and Hexagon NPU monitoring. See the
 [source-build notes](docs/qualcomm-snap-build.md) for pinned revisions and
@@ -114,7 +207,7 @@ For the published Store package, use the simpler command:
 sudo snap install cpu-monitoring-webapp --devmode
 ```
 
-After changing `snapcraft.yaml` or application files, rebuild and reinstall the
+After changing `snap/snapcraft.yaml` or application files, rebuild and reinstall the
 Snap. An already-installed revision does not contain newly added plugs or
 static files.
 
@@ -132,6 +225,7 @@ sudo snap connect cpu-monitoring-webapp:network-bind
 sudo snap connect cpu-monitoring-webapp:network-observe
 sudo snap connect cpu-monitoring-webapp:gsettings
 sudo snap connect cpu-monitoring-webapp:hardware-observe
+sudo snap connect cpu-monitoring-webapp:opengl
 sudo snap connect cpu-monitoring-webapp:system-observe
 sudo snap connect cpu-monitoring-webapp:process-control
 sudo snap connect cpu-monitoring-webapp:raw-usb
@@ -235,7 +329,7 @@ Flask/app.py              Flask routes and system metrics
 Flask/devices.py          Linux NVMe and accelerator discovery
 Flask/static/             Dashboard HTML, CSS, JavaScript, and assets
 shscripts/                Snap service and desktop launch scripts
-snapcraft.yaml            Snap package definition
+snap/snapcraft.yaml       Snap package definition and source-build dependencies
 tests/                    Device discovery tests
 ```
 
@@ -276,6 +370,17 @@ this page does not install drivers, elevate permissions or bypass confinement.
 The underlying sysfs metrics are documented in the
 [Linux AMD GPU monitoring documentation](https://docs.kernel.org/gpu/amdgpu/thermal.html).
 
+### NPU visible only with devmode
+
+Qualcomm FastRPC device access can be blocked by strict Snap confinement even
+when GPU monitoring works and all declared hardware interfaces are connected.
+If the NPU appears with `--devmode` but disappears in strict mode, a board-specific
+device policy is needed. Installing the app with `--devmode` may be necessary
+as a workaround. **Devmode disables Snap confinement**; use it only if you trust
+the app and accept broader system access. It does not install missing drivers
+or firmware. See the [permission diagnosis and installation example](docs/qualcomm-snap-build.md#qualcomm-npu-missing-in-strict-mode).
+The GPU/NPU page displays this notice next to the live terminal.
+
 ### Live nvtop GPU and NPU terminal in the browser
 
 The GPU / NPU page automatically opens a live, read-only **nvtop** terminal.
@@ -285,7 +390,8 @@ come directly from nvtop. No ttyd, external CDN, WebSocket server or extra port
 is needed. Use **Disconnect terminal** / **Reconnect terminal** to control the
 view; the chart pause button controls only dashboard charts.
 
-Install `nvtop` on the monitored host and ensure it is on the service's PATH.
+For source installations, install `nvtop` on the monitored host and ensure it
+is on the service's PATH. The Snap supplies its own nvtop binary.
 Snap builds compile a pinned nvtop revision from source. ARM64 builds also
 compile FastRPC and libqcnpuperf for Qualcomm Hexagon NPU monitoring.
 Rebuild/reinstall the Snap to include these changes. The native service account must be able to access the GPU/accelerator

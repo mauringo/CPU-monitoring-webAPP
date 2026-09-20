@@ -31,6 +31,20 @@
     <section class="hero"><div><p class="eyebrow">ACCELERATOR ACTIVITY</p><h1>GPU / NPU</h1><p class="hero-description">A live view of graphics and AI compute.</p></div><div class="hero-status"><span class="status-dot"></span><span id="status" role="status">Connecting…</span></div></section>
     <section class="panel nvtop-panel" aria-labelledby="nvtop-title">
       <div class="panel-heading"><div><p class="eyebrow">LIVE TERMINAL</p><h2 id="nvtop-title">nvtop</h2></div><button id="nvtop-toggle" class="btn btn-outline-primary" type="button">Disconnect terminal</button></div>
+      <aside class="npu-permission-notice" role="note" aria-labelledby="npu-permission-title">
+        <h3 id="npu-permission-title">Qualcomm NPU missing?</h3>
+        <p>Snap's strict confinement can block Qualcomm FastRPC access even when GPU monitoring works. On affected systems, installing this app with <code>--devmode</code> may be needed to see the NPU in nvtop.</p>
+        <p><strong>Devmode disables Snap confinement.</strong> Use it only if you trust this app and accept the broader system access. It does not install missing drivers or firmware.</p>
+        <details>
+          <summary>Installation options and permission checks</summary>
+          <p>First check that the <code>opengl</code>, <code>hardware-observe</code> and <code>system-observe</code> interfaces are connected in the Overview page's Help menu. These interfaces alone do not grant Qualcomm FastRPC access.</p>
+          <p>For a fresh installation from the Snap Store:</p>
+          <pre><code>sudo snap install cpu-monitoring-webapp --devmode</code></pre>
+          <p>For a locally built ARM64 package (use the filename of your downloaded or newly built Snap):</p>
+          <pre><code>sudo snap install --dangerous --devmode ./cpu-monitoring-webapp_2.0.3_arm64.snap</code></pre>
+          <p>After installation, reload this page or select Reconnect terminal. Strict-mode NPU support requires a device policy that permits FastRPC access on your board.</p>
+        </details>
+      </aside>
       <p id="nvtop-status" role="status">Connecting to nvtop…</p>
       <div class="nvtop-scroll" tabindex="0" aria-label="Read-only nvtop terminal; scroll horizontally on small screens"><div id="nvtop-terminal"></div></div>
       <p class="muted">Live, read-only output from this machine. Sessions last up to 10 minutes. Hardware support depends on the installed nvtop version and driver access.</p>

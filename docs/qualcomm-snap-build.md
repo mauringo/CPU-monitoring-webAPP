@@ -51,3 +51,26 @@ custom-device slot supplied by its gadget) that permits the board's FastRPC
 nodes and any required firmware/configuration paths. Compiling the libraries
 alone does not bypass this requirement. Missing permissions may leave the NPU
 absent while GPU monitoring continues. The recipe retains strict confinement.
+
+## Qualcomm NPU missing in strict mode
+
+On the tested host, all declared GPU/hardware interfaces were already connected.
+The kernel audit log recorded FastRPC accesses to `/dev/fastrpc-cdsp` (read/write)
+and `/dev/fastrpc-cdsp-secure` (read) as policy violations allowed only because
+the app was running in devmode. The host exposed no suitable custom-device or
+DSP slot to connect. Adding another ordinary GPU observation permission would
+not grant those device accesses. A board-specific device policy is needed for
+strict-mode support; no host AppArmor profiles or device modes were modified.
+
+If the NPU is visible in devmode but absent in strict mode, installing the local
+package with devmode is a workaround on affected systems:
+
+```sh
+sudo snap install --dangerous --devmode ./cpu-monitoring-webapp_2.0.3_arm64.snap
+```
+
+Use the actual filename of your package. **Devmode disables Snap confinement**;
+use it only for a trusted app when you accept the broader system access. It
+does not supply missing firmware or kernel drivers. The GPU/NPU page includes
+this notice next to the terminal. Rebuild/reinstall the Snap to include the
+updated page, then reload it or reconnect the terminal.
