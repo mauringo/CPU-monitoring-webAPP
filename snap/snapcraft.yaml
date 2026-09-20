@@ -138,13 +138,13 @@ parts:
     source-commit: 55896ac28e40f033af70b7bfbd8bf79b31522d8d
     build-packages: [cmake, build-essential, pkg-config, libncurses-dev, libdrm-dev, libudev-dev]
     stage-packages:
-      - on arm64:
+      - to arm64:
           - libncursesw6
           - libtinfo6
           - libdrm2
           - libudev1
           - ncurses-term
-        else:
+      - else:
           - nvtop
           - ncurses-term
     override-build: |
