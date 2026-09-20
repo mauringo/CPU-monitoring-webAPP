@@ -1,5 +1,5 @@
 name: cpu-monitoring-webapp
-version: '2.0.1'
+version: '2.0.2'
 platforms:
   amd64:
   arm64:
