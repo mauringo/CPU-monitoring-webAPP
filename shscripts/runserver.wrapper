@@ -1,3 +1,7 @@
 #!/bin/sh
 
+# Prefer the source-built nvtop and its bundled Qualcomm libraries.
+export PATH="$SNAP/usr/bin:$SNAP/bin:$PATH"
+export LD_LIBRARY_PATH="$SNAP/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export TERMINFO_DIRS="$SNAP/usr/share/terminfo:$SNAP/lib/terminfo:/usr/share/terminfo:/lib/terminfo"
 exec "$SNAP/bin/python3" "$SNAP/bin/Flask/app.py"

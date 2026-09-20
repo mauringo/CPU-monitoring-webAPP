@@ -2,7 +2,8 @@
 Type=Application
 Encoding=UTF-8
 Name=CPU Monitor
-Comment=Monitor your device usage
+Comment=Monitor Linux CPU, GPU, NPU and RAM usage with live nvtop in your browser
+Keywords=CPU;GPU;NPU;RAM;nvtop;Linux;system monitor;hardware;performance;
 Exec=cpu-monitoring-webapp-test.desktop-launch
 Icon=${SNAP}/meta/gui/icon.svg
 Terminal=false

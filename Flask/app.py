@@ -33,6 +33,7 @@ PERMISSION_INTERFACES = {
     'gsettings': 'Read desktop settings used by the launcher environment.',
     'camera': 'Read camera devices for v4l2 discovery.',
     'hardware-observe': 'Read hardware and accelerator information.',
+    'opengl': 'Read GPU devices for the embedded nvtop monitor.',
     'system-observe': 'Read system and process information.',
     'process-control': 'Allow the process Stop action.',
     'raw-usb': 'Read USB device information.',

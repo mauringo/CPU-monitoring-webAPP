@@ -1,5 +1,5 @@
 name: cpu-monitoring-webapp
-version: '2.0.2'
+version: '2.0.3'
 platforms:
   amd64:
   arm64:
@@ -8,28 +8,42 @@ platforms:
   riscv64:
   s390x:
 base: core26
-title: CPU Monitoring
+title: CPU Monitoring - CPU, GPU & NPU
 license: GPL-3.0-only
 contact: https://github.com/mauringo/CPU-monitoring-webAPP/issues
 issues: https://github.com/mauringo/CPU-monitoring-webAPP/issues
 source-code: https://github.com/mauringo/CPU-monitoring-webAPP
 website: https://github.com/mauringo/CPU-monitoring-webAPP
-summary: Simple WebAPP to monitor your system usage
+summary: Linux CPU, GPU and NPU monitoring with live nvtop in your browser
 description: |
-  CPU Monitoring is a lightweight Linux dashboard for observing system health.
+  Monitor Linux CPU, GPU, NPU and RAM usage from a self-hosted web dashboard.
+  CPU Monitoring combines system performance charts, hardware inventory and
+  a live nvtop terminal for graphics and AI accelerator monitoring.
 
-  Install the app, then open http://yourDeviceIp:12121 in a browser to view
-  live CPU and RAM usage, per-core activity, network traffic, disk usage,
-  temperature sensors, and process activity.
+  GPU and NPU monitoring:
+  - View GPU utilization history, video memory (VRAM), temperature and power
+    where supported by your hardware, drivers and available telemetry tools.
+  - Read NVIDIA GPU metrics through nvidia-smi and AMD GPU utilization and
+    video memory through the Linux amdgpu driver.
+  - Discover NPUs and AI accelerators, and view supported devices directly
+    in the embedded, read-only nvtop terminal with live graphs and processes.
+  - Switch between light, dark and system themes across charts and terminal.
 
-  CPU and RAM history is shown in interactive graphs and can be downloaded
-  as CSV data. The Devices page lists USB and PCI hardware, cameras, NVMe
-  storage, accelerators, and additional system information.
+  Linux system monitoring:
+  - Track CPU and RAM usage, per-core activity and top resource-using processes.
+  - Explore interactive CPU and RAM history graphs and export samples as CSV.
+  - Inspect network traffic, disks, NVMe storage, USB and PCI devices, cameras
+    and available temperature sensors.
 
-  Hardware observation, temperature readings, and process monitoring require
-  the appropriate Snap permissions. The Help menu reports the current
-  permissions and provides the commands needed to connect them.
-      
+  Open http://localhost:12121 for the overview or
+  http://localhost:12121/accelerators for GPU and NPU monitoring. Use the
+  monitored machine's IP address to access the dashboard on a trusted network.
+
+  Hardware metrics and nvtop device support depend on installed drivers,
+  tool versions and Snap permissions. Native NPU charts show discovery and
+  available sensors; NPU utilization in nvtop requires a supported backend.
+  The Help menu explains hardware permissions and available utilities.
+
 confinement: strict
 grade: stable
 
@@ -50,6 +64,7 @@ apps:
       - gsettings
       - udisks2
       - hardware-observe
+      - opengl
       - system-observe
       - mount-observe
     daemon: simple 
@@ -61,6 +76,86 @@ apps:
       
 
 parts:
+
+  # Qualcomm userspace dependencies are built only for ARM64 targets.
+  fastrpc:
+    plugin: nil
+    source: https://github.com/qualcomm/fastrpc.git
+    source-commit: d247519650fe5cb16de6c78edaa95bcc4be25073
+    build-packages: [autoconf, automake, libtool, pkg-config, build-essential, libyaml-dev, libbsd-dev]
+    stage-packages: [libyaml-0-2, libbsd0]
+    override-build: |
+      set -eu
+      [ "$CRAFT_ARCH_BUILD_FOR" = arm64 ] || exit 0
+      cd "$CRAFT_PART_SRC"
+      autoreconf -fi
+      cd "$CRAFT_PART_BUILD"
+      "$CRAFT_PART_SRC/configure" --prefix=/usr --libdir=/usr/lib
+      make -j"$CRAFT_PARALLEL_BUILD_COUNT"
+      make DESTDIR="$CRAFT_PART_INSTALL" install
+      install -Dm644 "$CRAFT_PART_SRC/LICENSE.txt" "$CRAFT_PART_INSTALL/usr/share/licenses/fastrpc/LICENSE.txt"
+    stage:
+      - usr/lib/*.so*
+      - usr/lib/*/lib*.so*
+      - usr/include/fastrpc
+      - usr/share/licenses
+      - usr/share/doc
+    prime:
+      - -usr/include
+
+  libqcnpuperf:
+    after: [fastrpc]
+    plugin: nil
+    source: https://github.com/qualcomm/libqcnpuperf.git
+    source-commit: 34261de1e689d0e718205e4ba8aae82108fd7881
+    build-packages: [cmake, build-essential, pkg-config]
+    override-build: |
+      set -eu
+      [ "$CRAFT_ARCH_BUILD_FOR" = arm64 ] || exit 0
+      # Upstream .pc paths must be prefix-relative for staged builds.
+      sed -i 's|^libdir=.*|libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@|; s|^includedir=.*|includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@|' "$CRAFT_PART_SRC/qcnpuperf.pc.in"
+      cmake -S "$CRAFT_PART_SRC" -B "$CRAFT_PART_BUILD" \
+        -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=lib -DQCNPU_PERF_BUILD_CLI=OFF \
+        -DFASTRPC_INCLUDE_DIR="$CRAFT_STAGE/usr/include/fastrpc" \
+        -DFASTRPC_LIBRARY="$CRAFT_STAGE/usr/lib/libcdsprpc.so"
+      cmake --build "$CRAFT_PART_BUILD" -j"$CRAFT_PARALLEL_BUILD_COUNT"
+      DESTDIR="$CRAFT_PART_INSTALL" cmake --install "$CRAFT_PART_BUILD"
+      install -Dm644 "$CRAFT_PART_SRC/LICENSE.txt" "$CRAFT_PART_INSTALL/usr/share/licenses/libqcnpuperf/LICENSE.txt"
+    prime:
+      - -usr/include
+      - -usr/lib/pkgconfig
+
+  nvtop:
+    after: [libqcnpuperf]
+    plugin: nil
+    source: https://github.com/Syllo/nvtop.git
+    source-commit: 55896ac28e40f033af70b7bfbd8bf79b31522d8d
+    build-packages: [cmake, build-essential, pkg-config, libncurses-dev, libdrm-dev, libudev-dev]
+    stage-packages: [libncursesw6, libtinfo6, libdrm2, libudev1, ncurses-term]
+    override-build: |
+      set -eu
+      export PKG_CONFIG_PATH="$CRAFT_STAGE/usr/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+      qcom_required=OFF
+      if [ "$CRAFT_ARCH_BUILD_FOR" = arm64 ]; then
+        qcom_required=ON
+        # Require our freshly built library, not a host-installed copy.
+        PKG_CONFIG_SYSROOT_DIR="$CRAFT_STAGE" pkg-config --exists qcnpuperf
+      fi
+      cmake -S "$CRAFT_PART_SRC" -B "$CRAFT_PART_BUILD" \
+        -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
+        -DNVIDIA_SUPPORT=ON -DAMDGPU_SUPPORT=ON -DINTEL_SUPPORT=ON \
+        -DMSM_SUPPORT=ON -DBUILD_TESTING=OFF -DUSE_LIBUDEV_OVER_LIBSYSTEMD=ON \
+        -DCMAKE_C_FLAGS="-I$CRAFT_STAGE/usr/include" \
+        -DCMAKE_EXE_LINKER_FLAGS="-L$CRAFT_STAGE/usr/lib -Wl,-rpath-link,$CRAFT_STAGE/usr/lib" \
+        -DCMAKE_INSTALL_RPATH='${ORIGIN}/../lib'
+      if [ "$qcom_required" = ON ]; then
+        grep -q '^NPUPERF_FOUND:INTERNAL=1$' "$CRAFT_PART_BUILD/CMakeCache.txt"
+        grep -q 'extract_npuinfo_qualcomm.c' "$CRAFT_PART_BUILD/src/CMakeFiles/nvtop.dir/build.make"
+      fi
+      cmake --build "$CRAFT_PART_BUILD" -j"$CRAFT_PARALLEL_BUILD_COUNT"
+      DESTDIR="$CRAFT_PART_INSTALL" cmake --install "$CRAFT_PART_BUILD"
+      install -Dm644 "$CRAFT_PART_SRC/COPYING" "$CRAFT_PART_INSTALL/usr/share/licenses/nvtop/COPYING"
 
   flask:
     plugin: python
@@ -74,7 +169,6 @@ parts:
       - v4l-utils
       - util-linux
       - net-tools
-      - nvtop
     build-packages:
       - python3-dev
       - python3-wheel

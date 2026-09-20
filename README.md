@@ -1,35 +1,44 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
-# CPU Monitoring
+# CPU Monitoring — Linux CPU, GPU & NPU Monitoring Dashboard
 
-CPU Monitoring is a lightweight Linux system dashboard served by Flask. Open
-`http://yourDeviceIp:12121` in a browser to view live CPU and RAM usage,
-per-core activity, network traffic, disk usage, temperature sensors, process
-activity, and system information.
+Monitor **CPU, GPU, NPU and RAM usage in your browser** with CPU Monitoring,
+a lightweight, open-source Linux system monitoring dashboard built with Flask.
+Track system performance, inspect hardware and view the **live nvtop GPU and
+AI accelerator terminal directly on a webpage**.
 
-The dashboard includes interactive CPU and RAM history graphs with CSV export.
-Its Devices page lists USB and PCI hardware, cameras, NVMe storage,
-accelerators, and additional host information. Temperature readings, hardware
-discovery, and process monitoring depend on the Snap permissions described
-below.
-
-The dashboard is available at `http://localhost:12121` when the server is
-running. The application uses Waitress and does not require an external web
-server.
+Open `http://localhost:12121` for the system overview, or
+[GPU / NPU monitoring](http://localhost:12121/accelerators) for accelerator
+charts and the embedded nvtop terminal. To monitor another machine on your
+trusted network, replace `localhost` with its IP address.
 
 ## Features
 
-- Live CPU and RAM usage with history charts
-- Physical and logical CPU counts, architecture, kernel, and processor details
-- Temperature sensor readings when the platform exposes them
-- Top processes by CPU and memory usage
-- Network traffic and physical disk inventory from `lsblk` (loop devices excluded)
-- Network interface names and addresses from `ifconfig`
-- NVMe controller and namespace discovery
-- Linux accelerator and NPU discovery
-- Device inspection tools exposed through the Devices page
-- Light, dark, and system theme modes
-- A Help menu with live Snap permission and utility checks
+- **Linux GPU monitoring:** utilization history, VRAM usage, temperature and
+  power readings where supported by installed drivers and telemetry tools.
+- **NVIDIA and AMD GPU telemetry:** NVIDIA readings through `nvidia-smi`, and
+  AMD utilization and video memory through the Linux `amdgpu` driver.
+- **NPU and AI accelerator monitoring:** hardware discovery and available
+  sensors, plus live accelerator activity through supported nvtop backends.
+- **nvtop in your browser:** the actual terminal interface, including colors,
+  graphs and process information, streamed in a read-only view with reconnect
+  controls. No separate terminal server or browser extension is required.
+- **CPU and RAM monitoring:** live usage, per-core activity, interactive history
+  charts, CSV export and top processes by CPU and resident memory usage.
+- **Linux hardware inventory:** USB and PCI devices, cameras, NVMe storage,
+  physical disks, network interfaces and temperature sensors.
+- **Consistent light and dark themes:** saved light, dark or system settings
+  apply to the GPU/NPU page, charts and embedded terminal.
+- **Self-hosted web dashboard:** access from a browser on your trusted network;
+  served by Waitress without an additional web server.
+- **Snap permission diagnostics:** a Help menu reports hardware access and
+  installed monitoring utilities.
+
+GPU and NPU metrics depend on hardware, drivers, tool versions and permissions.
+Unavailable readings are shown explicitly. Native NPU charts currently show
+identity and available sensors; NPU utilization is available in the embedded
+nvtop view only when its backend supports the device. See
+[GPU and NPU monitoring support](#gpu-and-npu-monitoring-support) for details.
 
 ## Install from the Snap Store
 
@@ -72,6 +81,11 @@ python -m unittest discover -s tests -v
 ```
 
 ## Build a Snap
+
+The Snap compiles nvtop from source, with FastRPC and libqcnpuperf built first
+on ARM64 for Qualcomm Adreno GPU and Hexagon NPU monitoring. See the
+[source-build notes](docs/qualcomm-snap-build.md) for pinned revisions and
+host device-access requirements.
 
 Install Snapcraft and its build provider according to the
 [Snapcraft documentation](https://snapcraft.io/docs/installing-snapcraft). In
@@ -239,7 +253,7 @@ This project is licensed under the GNU General Public License, version 3 only
 [NOTICE](NOTICE). Bundled third-party components retain their respective
 licenses and copyright notices.
 
-## GPU / NPU visualization
+## GPU and NPU monitoring support
 
 Open `/accelerators` or choose **GPU / NPU** in the navigation. The page polls
 `/acceleratordata` every three seconds and retains 60 samples per device. It
@@ -252,7 +266,8 @@ NVIDIA queries have a two-second timeout.
 - Other DRM GPUs: discovery and available hwmon temperature/power sensors.
 - NPUs: discovery through Linux `accel` and known PCI/platform drivers, including
   Intel, AMD XDNA, Rockchip, Ethos and Hailo. Available hwmon sensors are displayed.
-  NPU utilization is currently unavailable; vendor-specific collectors are needed.
+  Native NPU utilization charts require vendor-specific collectors. The embedded
+  nvtop terminal can display NPU utilization when its installed backend supports it.
   Generic `accel` devices are labeled **Accelerator**, since not all are NPUs.
 
 Missing readings are `null` in the API and shown as a dash, never as zero load.
@@ -261,7 +276,7 @@ this page does not install drivers, elevate permissions or bypass confinement.
 The underlying sysfs metrics are documented in the
 [Linux AMD GPU monitoring documentation](https://docs.kernel.org/gpu/amdgpu/thermal.html).
 
-### Embedded nvtop terminal
+### Live nvtop GPU and NPU terminal in the browser
 
 The GPU / NPU page automatically opens a live, read-only **nvtop** terminal.
 It uses a Linux pseudo-terminal and Server-Sent Events at `/nvtop/stream`,
@@ -271,8 +286,9 @@ is needed. Use **Disconnect terminal** / **Reconnect terminal** to control the
 view; the chart pause button controls only dashboard charts.
 
 Install `nvtop` on the monitored host and ensure it is on the service's PATH.
-Snap builds now include the nvtop package (rebuild/reinstall the Snap to include
-it). The native service account must be able to access the GPU/accelerator
+Snap builds compile a pinned nvtop revision from source. ARM64 builds also
+compile FastRPC and libqcnpuperf for Qualcomm Hexagon NPU monitoring.
+Rebuild/reinstall the Snap to include these changes. The native service account must be able to access the GPU/accelerator
 and allocate a PTY. Strict Snap confinement may additionally restrict PTYs or
 hardware; the page reports launch failures instead of elevating privileges.
 NPU visibility depends on the installed nvtop version and driver support.
