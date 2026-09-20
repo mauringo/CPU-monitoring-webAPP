@@ -1,4 +1,7 @@
-from flask import Flask, Response
+from flask import Flask, Response, jsonify, request
+import secrets
+from accelerators import TelemetryCache
+from nvtop_stream import stream_nvtop
 
 import psutil
 import json
@@ -37,6 +40,7 @@ PERMISSION_INTERFACES = {
     'udisks2': 'Access storage information through UDisks.',
 }
 MONITOR_COMMANDS = ['lsblk', 'ifconfig', 'lsusb', 'lspci', 'v4l2-ctl']
+ACCELERATOR_CACHE = TelemetryCache()
 PROCESS_CACHE_LOCK = threading.Lock()
 PROCESS_CACHE = {'ramProcesses': [], 'cpuProcesses': []}
 
@@ -51,6 +55,25 @@ def index():
 def systemdevices():
     
     return app.send_static_file('systemdevices.html')
+
+@app.route('/accelerators')
+def accelerators():
+    return app.send_static_file('accelerators.html')
+
+@app.route('/nvtop/stream')
+def nvtop_stream():
+    if request.headers.get('Sec-Fetch-Site') == 'cross-site':
+        return jsonify(error='Open the terminal from this dashboard.'), 403
+    columns = request.args.get('columns', default=120, type=int)
+    columns = max(80, min(160, columns))
+    return Response(stream_nvtop(columns=columns), mimetype='text/event-stream',
+                    headers={'Cache-Control': 'no-store', 'X-Accel-Buffering': 'no'})
+
+@app.route('/acceleratordata')
+def accelerator_data():
+    response = jsonify(ACCELERATOR_CACHE.get())
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 @app.route('/permissions')
 def permissions():
@@ -73,6 +96,11 @@ def dataproc():
 
 @app.route('/processes/<int:pid>/terminate', methods=['POST'])
 def terminate_process(pid):
+    token = os.environ.get('MONITOR_CONTROL_TOKEN', '')
+    if not token:
+        return jsonify(ok=False, error='Process control is disabled. Configure MONITOR_CONTROL_TOKEN to enable it.'), 403
+    if not secrets.compare_digest(request.headers.get('Authorization', '').encode('utf-8'), ('Bearer ' + token).encode('utf-8')):
+        return jsonify(ok=False, error='A valid process-control token is required.'), 403
     if pid <= 1 or pid == os.getpid():
         return Response(json.dumps({'ok': False, 'error': 'This process cannot be stopped from the dashboard.'}), status=400, mimetype='json')
     try:
@@ -293,13 +321,13 @@ def getListOfProcessSortedByMemory(numofprocesses):
        try:
            # Fetch process details as dict
            pinfo = proc.as_dict(attrs=['pid', 'name', 'username', 'cpu_percent'])
-           pinfo['vms'] = proc.memory_info().vms / (1024 * 1024)
+           pinfo['rss'] = proc.memory_info().rss / (1024 * 1024)
            # Append dict to list
            listOfProcObjects.append(pinfo);
        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
            pass
-    # Sort list of dict by key vms i.e. memory usage
-    listOfProcObjects = sorted(listOfProcObjects, key=lambda procObj: procObj['vms'], reverse=True)
+    # Sort process records by usage
+    listOfProcObjects = sorted(listOfProcObjects, key=lambda procObj: procObj['rss'], reverse=True)
 
     return listOfProcObjects[:numofprocesses]
 
@@ -314,12 +342,12 @@ def getListOfProcessSortedByCPU(numofprocesses):
            # Fetch process details as dict
            
            pinfo = proc.as_dict(attrs=['pid', 'name', 'username', 'cpu_percent'])
-           pinfo['vms'] = proc.memory_info().vms / (1024 * 1024)
+           pinfo['rss'] = proc.memory_info().rss / (1024 * 1024)
            # Append dict to list
            listOfProcObjects.append(pinfo);
        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
            pass
-    # Sort list of dict by key vms i.e. memory usage
+    # Sort process records by usage
     listOfProcObjects = sorted(listOfProcObjects, key=lambda procObj: procObj['cpu_percent'], reverse=True)
     return listOfProcObjects[:numofprocesses]
 
@@ -328,12 +356,12 @@ def refreshProcessCache():
     for proc in psutil.process_iter():
         try:
             info = proc.as_dict(attrs=['pid', 'name', 'username', 'cpu_percent'])
-            info['vms'] = proc.memory_info().vms / (1024 * 1024)
+            info['rss'] = proc.memory_info().rss / (1024 * 1024)
             processes.append(info)
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
     snapshot = {
-        'ramProcesses': sorted(processes, key=lambda item: item['vms'], reverse=True)[:10],
+        'ramProcesses': sorted(processes, key=lambda item: item['rss'], reverse=True)[:10],
         'cpuProcesses': sorted(processes, key=lambda item: item['cpu_percent'], reverse=True)[:10],
     }
     with PROCESS_CACHE_LOCK:
@@ -348,7 +376,7 @@ def processSampler():
 
 def ListSubprogram(CMD):
     try:
-        result = subprocess.run(CMD, stdout=subprocess.PIPE)
+        result = subprocess.run(CMD, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=3, check=True)
         listgross=result.stdout.decode("utf-8").replace('\t','').split('\n')
         realilist = [string for string in listgross if string != ""]
     
@@ -357,7 +385,7 @@ def ListSubprogram(CMD):
         pass
 
 def ListSubprogramPlain(CMD):
-    result = subprocess.run(CMD, stdout=subprocess.PIPE)
+    result = subprocess.run(CMD, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=3, check=True)
     listgross=result.stdout.decode("utf-8").replace('\t','').split('\n')
     realilist = [string for string in listgross if string != ""]
     print(result.stdout)
@@ -399,4 +427,4 @@ threading.Thread(target=processSampler, name='process-sampler', daemon=True).sta
 
 if __name__ == '__main__':
     from waitress import serve
-    serve(app, host='0.0.0.0', port=12121)
+    serve(app, host='0.0.0.0', port=12121, threads=8)

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GPU / NPU · CPU Monitoring</title>
+  <script src="/js/accelerator-theme.js"></script>
+  <link rel="icon" href="/assets/app-icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/libs/bootstrap-5.3.8-dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/accelerators.css">
+  <script defer src="/js/plotly-2.3.1.min.js"></script>
+  <script defer src="/js/utils.js"></script>
+  <script defer src="/js/accelerators.js"></script>
+  <link rel="stylesheet" href="/libs/xterm/xterm.css">
+  <script defer src="/libs/xterm/xterm.js"></script>
+  <script defer src="/js/nvtop.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="topbar"><nav class="navbar container" aria-label="Main navigation">
+    <a class="navbar-brand" href="/"><img src="/assets/cpu-monitor.svg" alt="CPU Monitoring" width="240" height="64"></a>
+    <div class="nav"><a class="nav-link" href="/">Overview</a><a class="nav-link" href="/systemdevices">Devices</a><a class="nav-link active" aria-current="page" href="/accelerators">GPU / NPU</a></div>
+  </nav></header>
+  <main id="main" class="container dashboard">
+    <section class="hero"><div><p class="eyebrow">ACCELERATOR ACTIVITY</p><h1>GPU / NPU</h1><p class="hero-description">A live view of graphics and AI compute.</p></div><div class="hero-status"><span class="status-dot"></span><span id="status" role="status">Connecting…</span></div></section>
+    <section class="panel nvtop-panel" aria-labelledby="nvtop-title">
+      <div class="panel-heading"><div><p class="eyebrow">LIVE TERMINAL</p><h2 id="nvtop-title">nvtop</h2></div><button id="nvtop-toggle" class="btn btn-outline-primary" type="button">Disconnect terminal</button></div>
+      <p id="nvtop-status" role="status">Connecting to nvtop…</p>
+      <div class="nvtop-scroll" tabindex="0" aria-label="Read-only nvtop terminal; scroll horizontally on small screens"><div id="nvtop-terminal"></div></div>
+      <p class="muted">Live, read-only output from this machine. Sessions last up to 10 minutes. Hardware support depends on the installed nvtop version and driver access.</p>
+    </section>
+    <div class="section-heading"><div><h2>Compute engines</h2><p id="summary">Discovering available hardware…</p></div><div class="toolbar"><button id="theme-toggle" class="btn btn-outline-primary" type="button">Theme: system</button><button id="pause" class="btn btn-outline-primary" aria-pressed="false" type="button">Pause updates</button></div></div>
+    <p id="warnings" class="muted" role="status"></p>
+    <div id="accelerator-list" class="performance-grid"><p class="empty-state">Waiting for accelerator readings…</p></div>
+    <section class="panel"><h2>Reading the signals</h2><p>Charts show the last 60 samples collected while this page is open. A dash means the driver does not expose that reading, or access is unavailable. It does not mean zero activity.</p><p>NVIDIA metrics use nvidia-smi. AMD utilization and video memory use Linux driver counters. Other GPUs, NPUs and compute accelerators show identity and available temperature or power sensors; utilization requires a supported vendor interface.</p></section>
+
+  </main>
+</body>
+</html>

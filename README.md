@@ -1,4 +1,4 @@
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
 # CPU Monitoring
 
@@ -108,8 +108,8 @@ static files.
 
 Strict confinement limits access to hardware and other processes. Connect the
 interfaces below after installing the Snap. The first group enables the
-dashboard and hardware inventory; `process-control` enables the Stop action in
-the process tables:
+dashboard and hardware inventory; `process-control` grants the OS permission
+for the Stop action. A configured `MONITOR_CONTROL_TOKEN` is also required:
 
 ```sh
 sudo snap connect cpu-monitoring-webapp:network
@@ -146,7 +146,7 @@ an empty device list does not prove that the hardware is absent.
 - `network-observe`: allow network device and traffic observation.
 - `hardware-observe` and `system-observe`: allow hardware, system, and process
 	observation.
-- `process-control`: allows the process-table Stop action.
+- `process-control`: grants OS access for Stop; `MONITOR_CONTROL_TOKEN` also must be configured.
 - `raw-usb`: allows USB device discovery.
 - `camera`: allows access to camera devices used by `v4l2-ctl`.
 - `mount-observe` and `udisks2`: allow mounted-storage and disk information.
@@ -234,4 +234,78 @@ adapter.
 
 ## License
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE).
+This project is licensed under the GNU General Public License, version 3 only
+(`GPL-3.0-only`). See [LICENSE](LICENSE). Original attribution is retained in
+[NOTICE](NOTICE). Bundled third-party components retain their respective
+licenses and copyright notices.
+
+## GPU / NPU visualization
+
+Open `/accelerators` or choose **GPU / NPU** in the navigation. The page polls
+`/acceleratordata` every three seconds and retains 60 samples per device. It
+includes utilization graphs, video memory, temperature, power, pause/resume,
+and disconnected/empty states. Multiple clients share a two-second server cache;
+NVIDIA queries have a two-second timeout.
+
+- NVIDIA: metrics from `nvidia-smi`, when installed and accessible to the service.
+- AMD (`amdgpu`): utilization and VRAM from documented Linux sysfs counters.
+- Other DRM GPUs: discovery and available hwmon temperature/power sensors.
+- NPUs: discovery through Linux `accel` and known PCI/platform drivers, including
+  Intel, AMD XDNA, Rockchip, Ethos and Hailo. Available hwmon sensors are displayed.
+  NPU utilization is currently unavailable; vendor-specific collectors are needed.
+  Generic `accel` devices are labeled **Accelerator**, since not all are NPUs.
+
+Missing readings are `null` in the API and shown as a dash, never as zero load.
+Containers and strict Snaps may restrict sysfs/device access or vendor tools;
+this page does not install drivers, elevate permissions or bypass confinement.
+The underlying sysfs metrics are documented in the
+[Linux AMD GPU monitoring documentation](https://docs.kernel.org/gpu/amdgpu/thermal.html).
+
+### Embedded nvtop terminal
+
+The GPU / NPU page automatically opens a live, read-only **nvtop** terminal.
+It uses a Linux pseudo-terminal and Server-Sent Events at `/nvtop/stream`,
+rendered by a locally bundled xterm.js 5.5.0. Colors, graphs and cursor updates
+come directly from nvtop. No ttyd, external CDN, WebSocket server or extra port
+is needed. Use **Disconnect terminal** / **Reconnect terminal** to control the
+view; the chart pause button controls only dashboard charts.
+
+Install `nvtop` on the monitored host and ensure it is on the service's PATH.
+Snap builds now include the nvtop package (rebuild/reinstall the Snap to include
+it). The native service account must be able to access the GPU/accelerator
+and allocate a PTY. Strict Snap confinement may additionally restrict PTYs or
+hardware; the page reports launch failures instead of elevating privileges.
+NPU visibility depends on the installed nvtop version and driver support.
+
+The bundled `Flask/nvtop.ini` disables blocking startup information dialogs
+without changing your personal nvtop configuration.
+
+Terminal input is disabled: the server accepts neither keystrokes nor commands.
+There are at most two terminal sessions per server process, with a ten-minute
+limit per session. Closing a stream terminates and reaps its nvtop subprocess.
+Waitress runs eight worker threads to leave capacity for normal dashboard
+requests. Custom WSGI deployments should provide more workers than the two
+stream slots. Reverse proxies must disable response buffering for `/nvtop/stream`
+and allow long-lived responses. Terminal geometry is selected when connecting;
+on narrow screens the terminal scrolls horizontally.
+
+Like the existing read-only dashboard, this endpoint has no authentication.
+Use a trusted network or an authenticated reverse proxy for remote access.
+The xterm.js MIT license is retained in `Flask/static/libs/xterm/LICENSE`.
+
+### Process control
+
+Process termination is now **disabled by default**. To enable it, set a strong
+`MONITOR_CONTROL_TOKEN` in the server environment and restart the service.
+The Stop action asks for that token and sends it in the Authorization header;
+it is not stored in browser storage. Use HTTPS or an SSH tunnel when using
+process control remotely. The token grants the service's process-termination
+privileges; the read-only dashboard endpoints still have no authentication.
+Process RAM values now report resident memory (RSS) in MiB. The `/processes`
+API uses `rss` in place of the previous misleading `vms` field.
+
+Run regression tests with `python3 -m unittest discover -s tests -v` after
+installing `requirements.txt`.
+
+Optional browser checks: install `playwright`, run `python3 -m playwright install chromium`,
+then `python3 tests/browser_accelerators.py` (Chromium system libraries are required).

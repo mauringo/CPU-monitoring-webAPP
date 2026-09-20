@@ -1,3 +1,9 @@
+function escapeHtml(value) {
+    const span = document.createElement('span');
+    span.textContent = value == null ? '' : String(value);
+    return span.innerHTML;
+}
+
 var switchMonitorVal = false;
 var refreshTimer;
 var processRows = {cpu: [], ram: []};
@@ -225,7 +231,7 @@ function renderProcessTable(data, tablename) {
     const table = document.getElementById(tablename);
     const body = document.createElement('tbody');
     data.forEach(row => {
-        const cells = [row.pid, row.name, row.username, displayNumber(row.vms), displayNumber(row.cpu_percent, '%')];
+        const cells = [row.pid, row.name, row.username, displayNumber(row.rss, ' MiB'), displayNumber(row.cpu_percent, '%')];
         const tr = body.insertRow();
         cells.forEach(value => tr.insertCell().textContent = value == null ? '—' : value);
         const action = tr.insertCell();
@@ -255,7 +261,9 @@ function renderProcessTables() {
 
 async function terminateProcess(pid, name) {
     if (!confirm('Terminate ' + (name || 'process') + ' (' + pid + ')?')) return;
-    const response = await fetch('/processes/' + pid + '/terminate', {method: 'POST'});
+    const token = prompt('Process-control token (configured on the server):');
+    if (!token) return;
+    const response = await fetch('/processes/' + pid + '/terminate', {method: 'POST', headers: {'Authorization': 'Bearer ' + token}});
     if (!response.ok) {
         const result = await response.json().catch(() => ({}));
         alert(result.error || 'Unable to terminate process.');
@@ -307,7 +315,7 @@ function renderResourceUsage(network, disk) {
         network.interfaces.forEach(device => {
             const item = document.createElement('div');
             item.className = 'core-item disk-item network-item';
-            item.innerHTML = '<div><span>' + device.name + '</span><strong>' + ((device.addresses || []).join(' · ') || 'No address reported') + '</strong></div>';
+            item.innerHTML = '<div><span>' + escapeHtml(device.name) + '</span><strong>' + escapeHtml((device.addresses || []).join(' · ') || 'No address reported') + '</strong></div>';
             interfaces.appendChild(item);
         });
     }
@@ -326,9 +334,9 @@ function renderResourceUsage(network, disk) {
             const percent = Number.parseFloat(filesystem.usedPercent);
             const label = filesystem.mountpoint || ('/dev/' + filesystem.name);
             const metadata = [label, filesystem.filesystem, Number.isFinite(percent) ? percent + '% used' : 'usage unavailable'].filter(Boolean).join(' · ');
-            return '<div class="disk-volume"><div><span>' + metadata + '</span></div><div class="progress"><div class="progress-bar" style="width:' + (Number.isFinite(percent) ? percent : 0) + '%" role="progressbar" aria-valuenow="' + (Number.isFinite(percent) ? percent : 0) + '" aria-valuemin="0" aria-valuemax="100"></div></div></div>';
+            return '<div class="disk-volume"><div><span>' + escapeHtml(metadata) + '</span></div><div class="progress"><div class="progress-bar" style="width:' + (Number.isFinite(percent) ? percent : 0) + '%" role="progressbar" aria-valuenow="' + (Number.isFinite(percent) ? percent : 0) + '" aria-valuemin="0" aria-valuemax="100"></div></div></div>';
         }).join('');
-        item.innerHTML = '<div><span>/dev/' + device.name + '</span><strong>' + formatBytes(device.size) + '</strong></div><small>' + (details || 'No mounted filesystem') + '</small>' + (volumeRows || '<small>No mounted filesystem usage</small>');
+        item.innerHTML = '<div><span>/dev/' + escapeHtml(device.name) + '</span><strong>' + formatBytes(device.size) + '</strong></div><small>' + escapeHtml(details || 'No mounted filesystem') + '</small>' + (volumeRows || '<small>No mounted filesystem usage</small>');
         list.appendChild(item);
     });
 }

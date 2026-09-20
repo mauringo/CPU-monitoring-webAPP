@@ -9,7 +9,7 @@ platforms:
   s390x:
 base: core26
 title: CPU Monitoring
-license: MIT
+license: GPL-3.0-only
 contact: https://github.com/mauringo/CPU-monitoring-webAPP/issues
 issues: https://github.com/mauringo/CPU-monitoring-webAPP/issues
 source-code: https://github.com/mauringo/CPU-monitoring-webAPP
@@ -74,6 +74,7 @@ parts:
       - v4l-utils
       - util-linux
       - net-tools
+      - nvtop
     build-packages:
       - python3-dev
       - python3-wheel
