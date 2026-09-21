@@ -99,14 +99,21 @@ parts:
       make -j"$CRAFT_PARALLEL_BUILD_COUNT"
       make DESTDIR="$CRAFT_PART_INSTALL" install
       install -Dm644 "$CRAFT_PART_SRC/LICENSE.txt" "$CRAFT_PART_INSTALL/usr/share/licenses/fastrpc/LICENSE.txt"
+    # Non-ARM64 builds create no Qualcomm headers or license directories.
     stage:
-      - usr/lib/*.so*
-      - usr/lib/*/lib*.so*
-      - usr/include/fastrpc
-      - usr/share/licenses
-      - usr/share/doc
+      - to arm64:
+          - usr/lib/*.so*
+          - usr/lib/*/lib*.so*
+          - usr/include/fastrpc
+          - usr/share/licenses
+          - usr/share/doc
+      - else:
+          - '-*'
     prime:
-      - -usr/include
+      - to arm64:
+          - -usr/include
+      - else:
+          - '-*'
 
   libqcnpuperf:
     after: [fastrpc]
@@ -127,9 +134,17 @@ parts:
       cmake --build "$CRAFT_PART_BUILD" -j"$CRAFT_PARALLEL_BUILD_COUNT"
       DESTDIR="$CRAFT_PART_INSTALL" cmake --install "$CRAFT_PART_BUILD"
       install -Dm644 "$CRAFT_PART_SRC/LICENSE.txt" "$CRAFT_PART_INSTALL/usr/share/licenses/libqcnpuperf/LICENSE.txt"
+    stage:
+      - to arm64:
+          - '*'
+      - else:
+          - '-*'
     prime:
-      - -usr/include
-      - -usr/lib/pkgconfig
+      - to arm64:
+          - -usr/include
+          - -usr/lib/pkgconfig
+      - else:
+          - '-*'
 
   nvtop:
     after: [libqcnpuperf]
